@@ -3,36 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Ultimate Dragon Adventure</title>
+    <title>Treasure Hunt Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="gameWrapper">
-        <!-- Start Screen -->
-        <div id="startScreen">
-            <h1>Ultimate Dragon Adventure</h1>
-            <p>Catch the stars, avoid the bad items, and score points!</p>
-            <button id="startBtn">Start Game</button>
+    <div id="game-container">
+        <h1>🏴‍☠️ Treasure Hunt 🏴‍☠️</h1>
+        <p id="intro-text">You are a pirate searching for treasure on a deserted island. Solve math problems to find clues and unlock the treasure!</p>
+        
+        <div id="player-info">
+            <label for="pirate-name">What's your pirate name?</label>
+            <input type="text" id="pirate-name">
+            <button onclick="startGame()">Start Game</button>
         </div>
+        
+        <div id="game-screen" class="hidden">
+            <p id="level-text"></p>
+            <p id="lives-text"></p>
+            <p id="score-text"></p>
+            <p id="treasure-text"></p>
 
-        <!-- Game Canvas -->
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <div id="math-problem">
+                <p id="problem"></p>
+                <input type="number" id="answer" placeholder="Your answer">
+                <button onclick="checkAnswer()">Submit Answer</button>
+            </div>
 
-        <!-- Game Over Screen -->
-        <div id="gameOverScreen">
-            <h2>Game Over!</h2>
-            <p>Your Score: <span id="finalScore"></span></p>
-            <button id="restartBtn">Play Again</button>
-        </div>
-
-        <!-- Controls -->
-        <div id="controls">
-            <button id="leftBtn">←</button>
-            <button id="rightBtn">→</button>
+            <div id="event-text"></div>
+            <div id="game-over" class="hidden">
+                <p>Game Over! 🎮</p>
+                <p id="final-score"></p>
+            </div>
         </div>
     </div>
 
-    <script src="game.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
