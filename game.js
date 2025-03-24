@@ -25,6 +25,7 @@ let lives = 3;
 let gameActive = false;
 let dragon = null;
 let objects = [];  // Objects to fall
+let speedMultiplier = 1; // Control the falling speed of objects
 
 // Game states
 const gameState = {
@@ -49,7 +50,6 @@ class Dragon {
 
     move() {
         this.x += this.velocityX;
-
         // Boundaries check
         this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
     }
@@ -67,7 +67,7 @@ class FallingObject {
     constructor() {
         this.x = Math.random() * canvas.width;
         this.y = 0;
-        this.speed = 3 + Math.random() * 2;  // Random speed for difficulty
+        this.speed = 3 + Math.random() * 2 * speedMultiplier;  // Random speed with difficulty
         this.size = 30;
         this.color = '#ffeb3b';
     }
@@ -96,9 +96,7 @@ leftBtn.addEventListener('click', () => { dragon.velocityX = -dragon.speed; });
 rightBtn.addEventListener('click', () => { dragon.velocityX = dragon.speed; });
 
 // Stop movement when button is released
-document.addEventListener('mouseup', () => {
-    dragon.velocityX = 0;
-});
+document.addEventListener('mouseup', () => { dragon.velocityX = 0; });
 
 // Game loop
 function gameLoop() {
@@ -130,6 +128,8 @@ function gameLoop() {
                 if (lives <= 0) {
                     currentState = gameState.GAME_OVER;
                     document.getElementById('finalScore').textContent = score;
+                    gameActive = false;  // Stop game loop
+                    gameOverScreen.style.display = 'block';
                 }
             }
         }
@@ -145,6 +145,7 @@ function gameLoop() {
             level++;
             score = 0; // Reset score for next level
             lives = 3; // Reset lives for next level
+            speedMultiplier += 0.5; // Increase difficulty
         }
 
         // Randomly spawn new objects
@@ -172,6 +173,7 @@ function restartGame() {
     score = 0;
     level = 1;
     lives = 3;
+    speedMultiplier = 1;
     currentState = gameState.START_SCREEN;
     startScreen.style.display = 'block';
     gameOverScreen.style.display = 'none';
