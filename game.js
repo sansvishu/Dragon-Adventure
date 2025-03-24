@@ -1,131 +1,120 @@
-// Get elements
-const startBtn = document.getElementById("startBtn");
-const restartBtn = document.getElementById("restartBtn");
-const gameCanvas = document.getElementById("gameCanvas");
-const gameOverScreen = document.getElementById("gameOverScreen");
-const finalScore = document.getElementById("finalScore");
-const startScreen = document.getElementById("startScreen");
-const controls = document.getElementById("controls");
-const leftBtn = document.getElementById("leftBtn");
-const rightBtn = document.getElementById("rightBtn");
-
-const ctx = gameCanvas.getContext("2d");
-
-let dragonX = gameCanvas.width / 2 - 50;
-let dragonY = gameCanvas.height - 60;
-let dragonSpeed = 15;
-let fallingStars = [];
-let score = 0;
+let pirateName = "";
 let lives = 3;
-let gameOver = false;
+let score = 0;
+let treasuresCollected = 0;
+let level = 1;
 
-// Start the game
-startBtn.addEventListener("click", () => {
-    startScreen.style.display = "none";
-    gameCanvas.style.display = "block";
-    controls.style.display = "block";
-    gameLoop();
-});
+const clues = [
+    "The treasure is buried near a tall palm tree. 🌴",
+    "Look for a big rock shaped like a turtle. 🪨",
+    "Dig where the sand is golden and soft. 🏖️",
+    "You're close! The treasure chest is hidden under a pile of seashells. 🐚"
+];
 
-// Restart the game
-restartBtn.addEventListener("click", () => {
-    gameOver = false;
-    lives = 3;
-    score = 0;
-    fallingStars = [];
-    finalScore.textContent = score;
-    gameOverScreen.style.display = "none";
-    startScreen.style.display = "none";
-    gameCanvas.style.display = "block";
-    controls.style.display = "block";
-    gameLoop();
-});
+const events = [
+    "You found a shiny gold coin! 💰",
+    "A friendly parrot gives you a hint: 'Look for the big rock!' 🦜",
+    "You stumbled upon a map! It shows the treasure is close. 🗺️",
+    "You take a break and enjoy the ocean breeze. 🌊",
+    "You found a mysterious key! It might unlock something later. 🔑"
+];
 
-// Move dragon left
-leftBtn.addEventListener("click", () => {
-    if (dragonX > 0) {
-        dragonX -= dragonSpeed;
+function startGame() {
+    pirateName = document.getElementById("pirate-name").value;
+    if (!pirateName) {
+        alert("Please enter a pirate name!");
+        return;
     }
-});
 
-// Move dragon right
-rightBtn.addEventListener("click", () => {
-    if (dragonX < gameCanvas.width - 50) {
-        dragonX += dragonSpeed;
-    }
-});
-
-// Create falling stars
-function createFallingStar() {
-    const starX = Math.random() * (gameCanvas.width - 30);
-    const star = { x: starX, y: 0, width: 30, height: 30 };
-    fallingStars.push(star);
+    document.getElementById("player-info").classList.add("hidden");
+    document.getElementById("game-screen").classList.remove("hidden");
+    nextLevel();
 }
 
-// Update falling stars
-function updateStars() {
-    for (let i = 0; i < fallingStars.length; i++) {
-        const star = fallingStars[i];
-        star.y += 5;
+function nextLevel() {
+    if (level > 3) {
+        showGameOver();
+        return;
+    }
 
-        if (star.y > gameCanvas.height) {
-            fallingStars.splice(i, 1);
-            lives -= 1;
-            if (lives === 0) {
-                gameOver = true;
-                finalScore.textContent = score;
-                gameOverScreen.style.display = "block";
-                gameCanvas.style.display = "none";
-                controls.style.display = "none";
-            }
-        }
+    document.getElementById("level-text").innerText = `Level ${level}`;
+    document.getElementById("lives-text").innerText = `Lives left: ❤️ x ${lives}`;
+    document.getElementById("score-text").innerText = `Score: ⭐ ${score}`;
+    document.getElementById("treasure-text").innerText = `Treasures collected: 💎 x ${treasuresCollected}`;
 
-        // Check for collision with the dragon
-        if (
-            star.x < dragonX + 50 &&
-            star.x + 30 > dragonX &&
-            star.y < dragonY + 50 &&
-            star.y + 30 > dragonY
-        ) {
-            score += 10;
-            fallingStars.splice(i, 1);
+    generateMathProblem();
+}
+
+function generateMathProblem() {
+    const problemData = generateMathProblemData(level);
+    document.getElementById("problem").innerText = `What is ${problemData.problem}?`;
+    document.getElementById("answer").value = "";
+    document.getElementById("answer").focus();
+    document.getElementById("event-text").innerText = "";
+}
+
+function generateMathProblemData(level) {
+    let num1, num2, operator;
+    if (level === 1) {
+        num1 = randomInt(1, 10);
+        num2 = randomInt(1, 10);
+        operator = randomChoice(["+", "-"]);
+    } else if (level === 2) {
+        num1 = randomInt(10, 20);
+        num2 = randomInt(1, 10);
+        operator = randomChoice(["+", "-", "*"]);
+    } else {
+        num1 = randomInt(1, 10);
+        num2 = randomInt(1, 5);
+        operator = randomChoice(["*", "/"]);
+        if (operator === "/") {
+            num1 = num2 * randomInt(1, 5);  // Ensure whole numbers
         }
     }
+
+    const answer = evaluateMathProblem(num1, num2, operator);
+    const problem = `${num1} ${operator} ${num2}`;
+    return { problem, answer };
 }
 
-// Draw game elements
-function draw() {
-    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-
-    // Draw falling stars
-    ctx.fillStyle = "yellow";
-    fallingStars.forEach(star => {
-        ctx.fillRect(star.x, star.y, star.width, star.height);
-    });
-
-    // Draw dragon
-    ctx.fillStyle = "green";
-    ctx.fillRect(dragonX, dragonY, 50, 50);
-
-    // Draw score and lives
-    ctx.fillStyle = "black";
-    ctx.font = "20px Arial";
-    ctx.fillText("Score: " + score, 20, 30);
-    ctx.fillText("Lives: " + lives, gameCanvas.width - 100, 30);
+function evaluateMathProblem(num1, num2, operator) {
+    if (operator === "+") return num1 + num2;
+    if (operator === "-") return num1 - num2;
+    if (operator === "*") return num1 * num2;
+    if (operator === "/") return Math.floor(num1 / num2);
 }
 
-// Game loop
-function gameLoop() {
-    if (!gameOver) {
-        createFallingStar();
-        updateStars();
-        draw();
-        requestAnimationFrame(gameLoop);
+function checkAnswer() {
+    const answer = parseInt(document.getElementById("answer").value);
+    const problemData = generateMathProblemData(level);
+    if (answer === problemData.answer) {
+        score += 10;
+        treasuresCollected += 1;
+        const event = randomChoice(events);
+        document.getElementById("event-text").innerText = event;
+        level++;
+        nextLevel();
+    } else {
+        lives--;
+        document.getElementById("lives-text").innerText = `Lives left: ❤️ x ${lives}`;
+        if (lives === 0) {
+            showGameOver();
+        } else {
+            generateMathProblem();
+        }
     }
 }
 
-// Resize the canvas when window is resized
-window.addEventListener("resize", () => {
-    gameCanvas.width = window.innerWidth - 40;
-    gameCanvas.height = window.innerHeight - 150;
-});
+function showGameOver() {
+    document.getElementById("game-screen").classList.add("hidden");
+    document.getElementById("game-over").classList.remove("hidden");
+    document.getElementById("final-score").innerText = `Your final score is: ⭐ ${score}`;
+}
+
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomChoice(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
