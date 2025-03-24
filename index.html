@@ -3,8 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Ultimate Dragon Adventure</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* General styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #gameWrapper {
+            text-align: center;
+            position: relative;
+        }
+        #gameCanvas {
+            border: 2px solid #333;
+            background-color: #87CEEB;
+            margin-top: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Start Screen */
+        #startScreen {
+            display: block;
+        }
+        #startScreen h1 {
+            font-size: 3rem;
+            color: #4CAF50;
+            margin: 0;
+        }
+        #startScreen p {
+            font-size: 1.5rem;
+            color: #555;
+        }
+        #startScreen button {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #startScreen button:hover {
+            background-color: #45a049;
+        }
+
+        /* Controls */
+        #controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        #controls button {
+            font-size: 2rem;
+            padding: 15px 25px;
+            margin: 0 15px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #controls button:hover {
+            background-color: #555;
+        }
+
+        /* Game Over Screen */
+        #gameOverScreen {
+            display: none;
+        }
+        #gameOverScreen h2 {
+            color: #f44336;
+        }
+        #gameOverScreen p {
+            font-size: 1.2rem;
+            color: #555;
+        }
+        #gameOverScreen button {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #gameOverScreen button:hover {
+            background-color: #e53935;
+        }
+    </style>
 </head>
 <body>
     <div id="gameWrapper">
@@ -15,19 +114,20 @@
             <button id="quitBtn">Quit</button>
         </div>
 
-        <canvas id="gameCanvas"></canvas>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
 
         <div id="controls">
-            <button id="leftBtn">←</button>
-            <button id="rightBtn">→</button>
+            <button id="leftBtn" aria-label="Move Left">←</button>
+            <button id="rightBtn" aria-label="Move Right">→</button>
         </div>
 
-        <div id="gameOverScreen" style="display:none;">
+        <div id="gameOverScreen">
             <h2>Game Over!</h2>
             <p>Score: <span id="finalScore"></span></p>
             <button id="restartBtn">Restart</button>
         </div>
     </div>
+
     <script src="game.js"></script>
 </body>
 </html>
