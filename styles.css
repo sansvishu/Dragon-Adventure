@@ -1,52 +1,13 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
-    text-align: center;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: black;
 }
 
-#game-container {
-    width: 80%;
-    margin: 0 auto;
-}
-
-#player-info {
-    margin-top: 20px;
-}
-
-.hidden {
-    display: none;
-}
-
-button {
-    padding: 10px 20px;
-    margin-top: 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-input[type="text"], input[type="number"] {
-    padding: 10px;
-    margin-top: 10px;
-    font-size: 16px;
-    width: 200px;
-}
-
-#math-problem {
-    margin-top: 30px;
-}
-
-#event-text {
-    margin-top: 20px;
-}
-
-#game-over {
-    margin-top: 30px;
-    color: red;
+canvas {
+    border: 1px solid white;
 }
