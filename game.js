@@ -1,198 +1,114 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+// Get elements
+const startBtn = document.getElementById("startBtn");
+const restartBtn = document.getElementById("restartBtn");
+const gameCanvas = document.getElementById("gameCanvas");
+const gameOverScreen = document.getElementById("gameOverScreen");
+const finalScore = document.getElementById("finalScore");
+const startScreen = document.getElementById("startScreen");
+const controls = document.getElementById("controls");
+const leftBtn = document.getElementById("leftBtn");
+const rightBtn = document.getElementById("rightBtn");
 
-// DOM Elements
-const startScreen = document.getElementById('startScreen');
-const gameOverScreen = document.getElementById('gameOverScreen');
-const startBtn = document.getElementById('startBtn');
-const quitBtn = document.getElementById('quitBtn');
-const restartBtn = document.getElementById('restartBtn');
-const leftBtn = document.getElementById('leftBtn');
-const rightBtn = document.getElementById('rightBtn');
+const ctx = gameCanvas.getContext("2d");
 
-// Resize the canvas to fit the screen
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight * 0.7;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-// Game variables
+let dragonX = gameCanvas.width / 2 - 50;
+let dragonY = gameCanvas.height - 60;
+let dragonSpeed = 15;
+let fallingStars = [];
 let score = 0;
-let level = 1;
 let lives = 3;
-let gameActive = false;
-let dragon = null;
-let objects = [];  // Objects to fall
-let speedMultiplier = 1; // Control the falling speed of objects
-
-// Game states
-const gameState = {
-    START_SCREEN: 'start',
-    GAME_ACTIVE: 'active',
-    GAME_OVER: 'over'
-};
-
-let currentState = gameState.START_SCREEN;
-
-// Create Dragon class
-class Dragon {
-    constructor() {
-        this.x = canvas.width / 2;
-        this.y = canvas.height - 100;
-        this.speed = 5;
-        this.color = 'green';
-        this.width = 50;
-        this.height = 50;
-        this.velocityX = 0;
-    }
-
-    move() {
-        this.x += this.velocityX;
-        // Boundaries check
-        this.x = Math.max(0, Math.min(canvas.width - this.width, this.x));
-    }
-
-    draw() {
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
-
-// Create Falling Object class
-class FallingObject {
-    constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = 0;
-        this.speed = 3 + Math.random() * 2 * speedMultiplier;  // Random speed with difficulty
-        this.size = 30;
-        this.color = '#ffeb3b';
-    }
-
-    fall() {
-        this.y += this.speed;
-    }
-
-    draw() {
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    checkCollision(dragon) {
-        const dx = this.x - dragon.x;
-        const dy = this.y - dragon.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        return distance < this.size + dragon.width / 2;
-    }
-}
-
-// Handle button presses for dragon movement
-leftBtn.addEventListener('click', () => { dragon.velocityX = -dragon.speed; });
-rightBtn.addEventListener('click', () => { dragon.velocityX = dragon.speed; });
-
-// Stop movement when button is released
-document.addEventListener('mouseup', () => { dragon.velocityX = 0; });
-
-// Game loop
-function gameLoop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (gameActive) {
-        // Update game objects
-        dragon.move();
-        dragon.draw();
-
-        // Update falling objects
-        for (let i = 0; i < objects.length; i++) {
-            let obj = objects[i];
-            obj.fall();
-            obj.draw();
-
-            // Check for collision with dragon
-            if (obj.checkCollision(dragon)) {
-                score += 10;
-                objects.splice(i, 1);
-                i--;
-            }
-
-            // Remove object if it goes out of bounds
-            if (obj.y > canvas.height) {
-                objects.splice(i, 1);
-                i--;
-                lives -= 1;
-                if (lives <= 0) {
-                    currentState = gameState.GAME_OVER;
-                    document.getElementById('finalScore').textContent = score;
-                    gameActive = false;  // Stop game loop
-                    gameOverScreen.style.display = 'block';
-                }
-            }
-        }
-
-        // Display score and lives
-        ctx.fillStyle = 'white';
-        ctx.font = '30px Arial';
-        ctx.fillText('Score: ' + score, 20, 40);
-        ctx.fillText('Lives: ' + lives, canvas.width - 120, 40);
-
-        // Level Up Logic
-        if (score >= level * 50) {
-            level++;
-            score = 0; // Reset score for next level
-            lives = 3; // Reset lives for next level
-            speedMultiplier += 0.5; // Increase difficulty
-        }
-
-        // Randomly spawn new objects
-        if (Math.random() < 0.02) {
-            objects.push(new FallingObject());
-        }
-    }
-
-    // Request the next frame of the game loop
-    requestAnimationFrame(gameLoop);
-}
+let gameOver = false;
 
 // Start the game
-function startGame() {
-    dragon = new Dragon();
-    currentState = gameState.GAME_ACTIVE;
-    startScreen.style.display = 'none';
-    gameOverScreen.style.display = 'none';
-    gameActive = true;
+startBtn.addEventListener("click", () => {
+    startScreen.style.display = "none";
+    gameCanvas.style.display = "block";
+    controls.style.display = "block";
     gameLoop();
-}
+});
 
 // Restart the game
-function restartGame() {
-    score = 0;
-    level = 1;
+restartBtn.addEventListener("click", () => {
+    gameOver = false;
     lives = 3;
-    speedMultiplier = 1;
-    currentState = gameState.START_SCREEN;
-    startScreen.style.display = 'block';
-    gameOverScreen.style.display = 'none';
+    score = 0;
+    fallingStars = [];
+    finalScore.textContent = score;
+    gameOverScreen.style.display = "none";
+    startScreen.style.display = "none";
+    gameCanvas.style.display = "block";
+    controls.style.display = "block";
+    gameLoop();
+});
+
+// Move dragon left
+leftBtn.addEventListener("click", () => {
+    if (dragonX > 0) {
+        dragonX -= dragonSpeed;
+    }
+});
+
+// Move dragon right
+rightBtn.addEventListener("click", () => {
+    if (dragonX < gameCanvas.width - 50) {
+        dragonX += dragonSpeed;
+    }
+});
+
+// Create falling stars
+function createFallingStar() {
+    const starX = Math.random() * (gameCanvas.width - 30);
+    const star = { x: starX, y: 0, width: 30, height: 30 };
+    fallingStars.push(star);
 }
 
-// Quit the game
-function quitGame() {
-    window.location.reload();
+// Update falling stars
+function updateStars() {
+    for (let i = 0; i < fallingStars.length; i++) {
+        const star = fallingStars[i];
+        star.y += 5;
+
+        if (star.y > gameCanvas.height) {
+            fallingStars.splice(i, 1);
+            lives -= 1;
+            if (lives === 0) {
+                gameOver = true;
+                finalScore.textContent = score;
+                gameOverScreen.style.display = "block";
+                gameCanvas.style.display = "none";
+                controls.style.display = "none";
+            }
+        }
+
+        // Check for collision with the dragon
+        if (
+            star.x < dragonX + 50 &&
+            star.x + 30 > dragonX &&
+            star.y < dragonY + 50 &&
+            star.y + 30 > dragonY
+        ) {
+            score += 10;
+            fallingStars.splice(i, 1);
+        }
+    }
 }
 
-// Event Listeners for buttons
-startBtn.addEventListener('click', startGame);
-quitBtn.addEventListener('click', quitGame);
-restartBtn.addEventListener('click', restartGame);
+// Draw game elements
+function draw() {
+    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-// Initialize game state
-function init() {
-    gameOverScreen.style.display = 'none';
-    startScreen.style.display = 'block';
-}
+    // Draw falling stars
+    ctx.fillStyle = "yellow";
+    fallingStars.forEach(star => {
+        ctx.fillRect(star.x, star.y, star.width, star.height);
+    });
 
-init();
+    // Draw dragon
+    ctx.fillStyle = "green";
+    ctx.fillRect(dragonX, dragonY, 50, 50);
+
+    // Draw score and lives
+    ctx.fillStyle = "black";
+    ctx.font = "20px Arial";
+    ctx.fillText("Score: " + score, 20, 30);
+    ctx.fillText("Lives: " + lives, gameCanvas.width - 100
