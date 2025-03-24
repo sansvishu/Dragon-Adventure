@@ -111,4 +111,21 @@ function draw() {
     ctx.fillStyle = "black";
     ctx.font = "20px Arial";
     ctx.fillText("Score: " + score, 20, 30);
-    ctx.fillText("Lives: " + lives, gameCanvas.width - 100
+    ctx.fillText("Lives: " + lives, gameCanvas.width - 100, 30);
+}
+
+// Game loop
+function gameLoop() {
+    if (!gameOver) {
+        createFallingStar();
+        updateStars();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+}
+
+// Resize the canvas when window is resized
+window.addEventListener("resize", () => {
+    gameCanvas.width = window.innerWidth - 40;
+    gameCanvas.height = window.innerHeight - 150;
+});
