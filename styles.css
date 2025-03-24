@@ -6,7 +6,7 @@
 }
 
 body {
-    font-family: 'Roboto', sans-serif; /* More modern font */
+    font-family: 'Roboto', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -100,7 +100,7 @@ button:focus {
 
 #gameCanvas {
     width: 100%;
-    height: 70vh;
+    height: 60vh;
     border: 3px solid #ff4081;
     background-color: #f0f0f0;
     display: block;
@@ -175,7 +175,7 @@ button:focus {
     }
 
     #gameCanvas {
-        height: 60vh;
+        height: 55vh;
     }
 }
 
