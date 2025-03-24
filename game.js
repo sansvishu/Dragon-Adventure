@@ -33,7 +33,7 @@ class Dragon {
         this.y = canvas.height - 100;
         this.speed = 5;
         this.image = new Image();
-        this.image.src = "https://i.postimg.cc/RN1Dt95K/dragon.jpg"; // Dragon image
+        this.image.src = "https://i.postimg.cc/8scvWm2H/dragon-removebg-preview.png"; // Updated Dragon image
     }
 
     move() {
@@ -56,7 +56,7 @@ class Gem {
         this.x = Math.random() * (canvas.width - this.width);
         this.y = Math.random() * (canvas.height - 100);
         this.image = new Image();
-        this.image.src = "https://i.postimg.cc/CRmrvNKK/gold-coin.jpg"; // Gold coin image
+        this.image.src = "https://i.postimg.cc/hzy76XdT/gold-coin-removebg-preview.png"; // Updated Gold Coin image
     }
 
     draw() {
@@ -73,7 +73,7 @@ class Enemy {
         this.y = Math.random() * (canvas.height - 200);
         this.speed = Math.random() * 3 + 1;
         this.image = new Image();
-        this.image.src = "https://i.postimg.cc/NynJtjmq/Monster.png"; // Monster image
+        this.image.src = "https://i.postimg.cc/zHyRrqCM/monster-removebg-preview.png"; // Updated Monster image
     }
 
     move() {
@@ -91,7 +91,7 @@ class Enemy {
 
 // Background setup
 const backgroundImage = new Image();
-backgroundImage.src = "https://i.postimg.cc/t1JS8x1N/background.png"; // Background image
+backgroundImage.src = "https://i.postimg.cc/gJGn8KRZ/backgroudn-of-game.jpg"; // Updated Background image
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -114,7 +114,8 @@ function draw() {
     if (gameOver) {
         ctx.fillStyle = "red";
         ctx.font = "30px Arial";
-        ctx.fillText("GAME OVER! Press R to restart", canvas.width / 2 - 180, canvas.height / 2);
+        ctx.fillText("GAME OVER!", canvas.width / 2 - 100, canvas.height / 2 - 30);
+        ctx.fillText("Press Restart to play again.", canvas.width / 2 - 150, canvas.height / 2 + 30);
     }
 }
 
@@ -174,6 +175,7 @@ function checkCollisions() {
             lives--;
             if (lives <= 0) {
                 gameOver = true;
+                document.getElementById("gameOverScreen").classList.remove("hidden"); // Show restart button
             } else {
                 resetLevel();
             }
@@ -206,12 +208,11 @@ resetLevel();
 gameLoop();
 
 // Restart game
-document.addEventListener("keydown", (e) => {
-    if (e.key === "r" && gameOver) {
-        gameOver = false;
-        score = 0;
-        level = 1;
-        lives = 3;
-        resetLevel();
-    }
+document.getElementById("restartButton").addEventListener("click", () => {
+    gameOver = false;
+    score = 0;
+    level = 1;
+    lives = 3;
+    resetLevel();
+    document.getElementById("gameOverScreen").classList.add("hidden"); // Hide restart button
 });
