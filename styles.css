@@ -14,7 +14,7 @@ canvas {
     max-width: 100%;
 }
 
-/* HUD (Score, Lives, Level, Coins Needed) */
+/* HUD */
 #hud {
     position: absolute;
     top: 10px;
