@@ -29,7 +29,7 @@ backgroundMusic.volume = 0.2;
 
 // Background setup
 const backgroundImage = new Image();
-backgroundImage.src = "https://i.postimg.cc/L6wN945n/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg";  // Background image URL
+backgroundImage.src = "https://i.postimg.cc/L84CQQJV/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.png";  // Updated background image URL
 
 // Dragon properties
 const dragons = {
@@ -228,7 +228,7 @@ function gameLoop() {
 // Draw the game elements
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);  // Draw the background
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);  // Draw the updated background
 
     // Draw dragon, gems, and enemies
     dragon.draw();
@@ -271,31 +271,6 @@ document.getElementById("nextLevelButton").addEventListener("click", () => {
     document.getElementById("levelUpScreen").classList.add("hidden");  // Hide level up message
     playBackgroundMusic();  // Start background music again
 });
-
-// Play background music
-function playBackgroundMusic() {
-    backgroundMusic.play();
-}
-
-// Stop background music
-function stopBackgroundMusic() {
-    backgroundMusic.pause();
-}
-
-// Play gem collect sound
-function playGemCollectSound() {
-    gemCollectSound.play();
-}
-
-// Play game over sound
-function playGameOverSound() {
-    gameOverSound.play();
-}
-
-// Play level-up sound
-function playLevelUpSound() {
-    levelUpSound.play();
-}
 
 // Start the game
 resetLevel();
