@@ -1,10 +1,8 @@
-// Set up canvas
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = 800;
 canvas.height = 600;
 
-// Game Variables
 let score = 0;
 let level = 1;
 let lives = 3;
@@ -12,7 +10,6 @@ let coinsCollected = 0;
 let coinTarget = 10;
 let gameOver = false;
 
-// Elements
 const scoreDisplay = document.getElementById("score").querySelector("span");
 const levelDisplay = document.getElementById("level");
 const livesDisplay = document.getElementById("lives");
@@ -22,7 +19,6 @@ const levelUpPopup = document.getElementById("levelUpPopup");
 const restartButton = document.getElementById("restartButton");
 const continueButton = document.getElementById("continueButton");
 
-// Backgrounds & Dragons
 const backgrounds = ["forest.jpg", "desert.jpg", "mountain.jpg"];
 const dragonTypes = [
     { name: "Fire", image: "fire-dragon.png" },
@@ -33,7 +29,6 @@ const dragonTypes = [
 let currentBackground = backgrounds[0];
 let currentDragon = dragonTypes[0];
 
-// Dragon Class
 class Dragon {
     constructor() {
         this.width = 60;
@@ -57,7 +52,6 @@ class Dragon {
     }
 }
 
-// Gem Class
 class Gem {
     constructor() {
         this.width = 25;
@@ -73,7 +67,6 @@ class Gem {
     }
 }
 
-// Check Collisions
 function checkCollisions() {
     gems.forEach((gem, index) => {
         if (dragon.x < gem.x + gem.width && dragon.x + dragon.width > gem.x &&
@@ -84,16 +77,16 @@ function checkCollisions() {
             gems.push(new Gem());
 
             scoreDisplay.textContent = score;
-            if (score % 200 === 0) levelUp();
+            if (coinsCollected >= coinTarget) levelUp();
         }
     });
 }
 
-// Level Up
 function levelUp() {
     level++;
     levelDisplay.textContent = level;
-
+    coinTarget += 5;
+    coinsCollected = 0;
     currentBackground = backgrounds[level % backgrounds.length];
     currentDragon = dragonTypes[level % dragonTypes.length];
     document.body.style.background = `url('${currentBackground}') no-repeat center center/cover`;
@@ -102,19 +95,16 @@ function levelUp() {
     levelUpPopup.classList.remove("hidden");
 }
 
-// Game Over
 function endGame() {
     gameOver = true;
     document.getElementById("finalScore").textContent = score;
     gameOverPopup.classList.remove("hidden");
 }
 
-// Restart Game
 restartButton.addEventListener("click", () => {
     location.reload();
 });
 
-// Continue to Next Level
 continueButton.addEventListener("click", () => {
     levelUpPopup.classList.add("hidden");
     dragon = new Dragon();
@@ -122,7 +112,6 @@ continueButton.addEventListener("click", () => {
     gameLoop();
 });
 
-// Start Game
 dragon = new Dragon();
 gems = Array.from({ length: 5 }, () => new Gem());
 gameLoop();
