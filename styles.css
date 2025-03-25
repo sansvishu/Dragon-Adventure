@@ -13,7 +13,7 @@ canvas {
     border: 2px solid white;
 }
 
-#gameOverScreen {
+#gameOverScreen, #levelUpPopup {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -49,10 +49,6 @@ canvas {
 }
 
 #levelUpPopup {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     background: yellow;
     color: black;
     font-size: 30px;
