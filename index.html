@@ -3,35 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon Adventure</title>
+    <title>Dragon Adventure: The Magic Kingdom</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <!-- Game Info Section (Left Side) -->
-    <div class="game-info">
-        <p>Lives: <span id="lives">3</span></p>
-        <p>Level: <span id="level">1</span></p>
-        <p>Dragon: <span id="dragonType">Fire</span></p>
-    </div>
-
-    <!-- Score Display (Right Side) -->
-    <p id="score">Score: <span>0</span></p>
-
-    <!-- Game Canvas -->
     <canvas id="gameCanvas"></canvas>
-
-    <!-- Popups -->
-    <div id="gameOverPopup" class="popup hidden">
-        <h2>Game Over!</h2>
-        <p>Your final score: <span id="finalScore">0</span></p>
-        <button id="restartButton">Restart Game</button>
-    </div>
-
-    <div id="levelUpPopup" class="popup hidden">
-        <h2>Level <span id="newLevel">1</span>!</h2>
-        <p>New challenge unlocked!</p>
-        <button id="continueButton">Continue</button>
+    
+    <div id="levelUpPopup" class="hidden">Level <span id="levelNumber"></span>!</div>
+    <div id="gameOverScreen" class="hidden">
+        <p>GAME OVER!</p>
+        <button id="restartButton">Restart</button>
     </div>
 
     <script src="game.js"></script>
