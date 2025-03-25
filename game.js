@@ -1,101 +1,74 @@
-// Set up canvas
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+
 canvas.width = 800;
 canvas.height = 600;
+
+// Load images
+const dragonImg = new Image();
+dragonImg.src = "https://i.postimg.cc/K3TvQxwh/dragon-removebg-preview.png";
+
+const coinImg = new Image();
+coinImg.src = "https://i.postimg.cc/0MbNMpCQ/gold-coin-removebg-preview.png";
+
+const monsterImg = new Image();
+monsterImg.src = "https://i.postimg.cc/0MFypbtC/monster-removebg-preview.png";
 
 // Game variables
 let score = 0;
 let level = 1;
 let lives = 3;
 let gameOver = false;
-let currentDragon = "Fire";  // Default dragon
-const FPS = 60;
-let dragon;
-let gems = [];
-let enemies = [];
 let powerUps = [];
 
-// Dragon properties
-const dragons = {
-    "Fire": { color: "red", ability: "Burn obstacles" },
-    "Ice": { color: "blue", ability: "Freeze enemies" },
-    "Earth": { color: "green", ability: "Dig through rocks" },
-    "Storm": { color: "purple", ability: "Fly faster" }
-};
+// Sound effects
+const coinSound = new Audio("https://www.fesliyanstudios.com/play-mp3/2");
+const hitSound = new Audio("https://www.fesliyanstudios.com/play-mp3/3");
+const powerUpSound = new Audio("https://www.fesliyanstudios.com/play-mp3/4");
 
-// Dragon class
+// Dragon object
 class Dragon {
-    constructor(type) {
-        this.type = type;
+    constructor() {
+        this.x = canvas.width / 2;
+        this.y = canvas.height - 80;
         this.width = 50;
         this.height = 50;
-        this.x = canvas.width / 2 - this.width / 2;
-        this.y = canvas.height - 100;
         this.speed = 5;
-        this.image = new Image();
-        this.image.src = "https://i.postimg.cc/8scvWm2H/dragon-removebg-preview.png"; // Updated Dragon image
+        this.ability = "none";
     }
 
     move() {
-        if (keys.left && this.x > 0) this.x -= this.speed;
-        if (keys.right && this.x + this.width < canvas.width) this.x += this.speed;
-        if (keys.up && this.y > 0) this.y -= this.speed;
-        if (keys.down && this.y + this.height < canvas.height) this.y += this.speed;
+        if (keys["ArrowLeft"] && this.x > 0) this.x -= this.speed;
+        if (keys["ArrowRight"] && this.x < canvas.width - this.width) this.x += this.speed;
+        if (keys["ArrowUp"] && this.y > 0) this.y -= this.speed;
+        if (keys["ArrowDown"] && this.y < canvas.height - this.height) this.y += this.speed;
     }
 
     draw() {
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height); // Draw the dragon image
+        ctx.drawImage(dragonImg, this.x, this.y, this.width, this.height);
     }
 }
 
-// Gem class
-class Gem {
+class Coin {
     constructor() {
+        this.x = Math.random() * (canvas.width - 20);
+        this.y = Math.random() * (canvas.height - 100);
         this.width = 20;
         this.height = 20;
-        this.x = Math.random() * (canvas.width - this.width);
-        this.y = Math.random() * (canvas.height - 100);
-        this.image = new Image();
-        this.image.src = "https://i.postimg.cc/hzy76XdT/gold-coin-removebg-preview.png"; // Updated Gold Coin image
     }
 
     draw() {
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height); // Draw the coin image
+        ctx.drawImage(coinImg, this.x, this.y, this.width, this.height);
     }
 }
 
-// Power-Up class (e.g., shield, speed boost)
-class PowerUp {
-    constructor(type) {
-        this.width = 30;
-        this.height = 30;
-        this.x = Math.random() * (canvas.width - this.width);
-        this.y = Math.random() * (canvas.height - 100);
-        this.type = type;
-        this.image = new Image();
-        if (type === "shield") {
-            this.image.src = "https://i.postimg.cc/Vv9wZm6w/shield.png"; // Example shield power-up
-        } else if (type === "speed") {
-            this.image.src = "https://i.postimg.cc/vH9msmvX/speed-boost.png"; // Example speed boost power-up
-        }
-    }
-
-    draw() {
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height); // Draw the power-up image
-    }
-}
-
-// Enemy class
 class Enemy {
     constructor() {
-        this.width = 50;
-        this.height = 50;
-        this.x = Math.random() * (canvas.width - this.width);
-        this.y = Math.random() * (canvas.height - 200);
+        this.x = Math.random() * (canvas.width - 30);
+        this.y = Math.random() * (canvas.height / 2);
+        this.width = 30;
+        this.height = 30;
         this.speed = Math.random() * 3 + 1;
-        this.image = new Image();
-        this.image.src = "https://i.postimg.cc/zHyRrqCM/monster-removebg-preview.png"; // Updated Monster image
     }
 
     move() {
@@ -107,146 +80,112 @@ class Enemy {
     }
 
     draw() {
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height); // Draw the monster image
+        ctx.drawImage(monsterImg, this.x, this.y, this.width, this.height);
     }
 }
 
-// Background setup with animation
-let backgroundY = 0;
-const backgroundImage = new Image();
-backgroundImage.src = "https://i.postimg.cc/gJGn8KRZ/backgroudn-of-game.jpg"; // Updated Background image
+class PowerUp {
+    constructor(type) {
+        this.x = Math.random() * (canvas.width - 30);
+        this.y = Math.random() * (canvas.height - 100);
+        this.width = 25;
+        this.height = 25;
+        this.type = type;
+    }
 
+    draw() {
+        ctx.fillStyle = "yellow";
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+}
+
+// Initialize objects
+let dragon = new Dragon();
+let coins = Array.from({ length: 5 + level }, () => new Coin());
+let enemies = Array.from({ length: level }, () => new Enemy());
+
+// Key events
+let keys = {};
+window.addEventListener("keydown", (e) => (keys[e.key] = true));
+window.addEventListener("keyup", (e) => (keys[e.key] = false));
+
+// Check collisions
+function isColliding(a, b) {
+    return (
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y
+    );
+}
+
+// Reset level
+function resetLevel() {
+    coins = Array.from({ length: 5 + level }, () => new Coin());
+    enemies = Array.from({ length: level }, () => new Enemy());
+    powerUps = [];
+}
+
+// Game loop
+function update() {
+    if (!gameOver) {
+        dragon.move();
+
+        // Check coin collection
+        for (let i = 0; i < coins.length; i++) {
+            if (isColliding(dragon, coins[i])) {
+                coins.splice(i, 1);
+                score += 10;
+                coinSound.play();
+                if (Math.random() < 0.2) powerUps.push(new PowerUp("shield"));
+            }
+        }
+
+        // Check power-up collection
+        for (let i = 0; i < powerUps.length; i++) {
+            if (isColliding(dragon, powerUps[i])) {
+                powerUps.splice(i, 1);
+                powerUpSound.play();
+                lives += 1;
+            }
+        }
+
+        // Check enemy collision
+        for (let enemy of enemies) {
+            enemy.move();
+            if (isColliding(dragon, enemy)) {
+                hitSound.play();
+                lives -= 1;
+                if (lives <= 0) gameOver = true;
+                resetLevel();
+            }
+        }
+
+        // Level progression
+        if (coins.length === 0) {
+            level += 1;
+            resetLevel();
+        }
+    }
+}
+
+// Draw everything
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Animated background (scrolling effect)
-    backgroundY += 1;
-    if (backgroundY > canvas.height) backgroundY = 0;
-    ctx.drawImage(backgroundImage, 0, backgroundY, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImage, 0, backgroundY - canvas.height, canvas.width, canvas.height);
-
-    // Draw dragon, gems, enemies, power-ups
     dragon.draw();
-    gems.forEach(gem => gem.draw());
-    enemies.forEach(enemy => enemy.draw());
-    powerUps.forEach(powerUp => powerUp.draw());
+    coins.forEach((coin) => coin.draw());
+    enemies.forEach((enemy) => enemy.draw());
+    powerUps.forEach((power) => power.draw());
 
-    // Draw UI (score, lives, level)
+    // UI
     ctx.fillStyle = "white";
     ctx.font = "20px Arial";
     ctx.fillText(`Score: ${score}`, 10, 30);
     ctx.fillText(`Lives: ${lives}`, 10, 60);
     ctx.fillText(`Level: ${level}`, 10, 90);
-    ctx.fillText(`Dragon: ${currentDragon}`, 10, 120);
 
-    // Draw game over text
     if (gameOver) {
-        ctx.fillStyle = "red";
-        ctx.font = "30px Arial";
-        ctx.fillText("GAME OVER!", canvas.width / 2 - 100, canvas.height / 2 - 30);
-        ctx.fillText("Press Restart to play again.", canvas.width / 2 - 150, canvas.height / 2 + 30);
-    }
-}
-
-// Handle key presses
-const keys = {
-    left: false,
-    right: false,
-    up: false,
-    down: false
-};
-
-document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft") keys.left = true;
-    if (e.key === "ArrowRight") keys.right = true;
-    if (e.key === "ArrowUp") keys.up = true;
-    if (e.key === "ArrowDown") keys.down = true;
-});
-
-document.addEventListener("keyup", (e) => {
-    if (e.key === "ArrowLeft") keys.left = false;
-    if (e.key === "ArrowRight") keys.right = false;
-    if (e.key === "ArrowUp") keys.up = false;
-    if (e.key === "ArrowDown") keys.down = false;
-});
-
-// Reset level
-function resetLevel() {
-    dragon = new Dragon(currentDragon);
-    gems = [];
-    enemies = [];
-    powerUps = [];
-
-    for (let i = 0; i < 5 + level; i++) {
-        gems.push(new Gem());
-    }
-
-    for (let i = 0; i < level; i++) {
-        enemies.push(new Enemy());
-    }
-
-    // Introduce power-ups (randomly)
-    if (Math.random() < 0.1) {
-        powerUps.push(new PowerUp("shield"));
-    }
-    if (Math.random() < 0.1) {
-        powerUps.push(new PowerUp("speed"));
-    }
-}
-
-// Check collisions
-function checkCollisions() {
-    // Check if dragon collects gems
-    gems.forEach((gem, index) => {
-        if (dragon.x < gem.x + gem.width && dragon.x + dragon.width > gem.x &&
-            dragon.y < gem.y + gem.height && dragon.y + dragon.height > gem.y) {
-            score += 10;
-            gems.splice(index, 1);
-            gems.push(new Gem());  // Spawn a new gem
-        }
-    });
-
-    // Check if dragon collects power-ups
-    powerUps.forEach((powerUp, index) => {
-        if (dragon.x < powerUp.x + powerUp.width && dragon.x + dragon.width > powerUp.x &&
-            dragon.y < powerUp.y + powerUp.height && dragon.y + dragon.height > powerUp.y) {
-            if (powerUp.type === "shield") {
-                // Give the dragon a shield for a limited time
-                console.log("Shield activated!");
-            } else if (powerUp.type === "speed") {
-                // Boost the dragon's speed temporarily
-                console.log("Speed Boost!");
-            }
-            powerUps.splice(index, 1);
-        }
-    });
-
-    // Check if dragon hits enemy
-    enemies.forEach((enemy) => {
-        if (dragon.x < enemy.x + enemy.width && dragon.x + dragon.width > enemy.x &&
-            dragon.y < enemy.y + enemy.height && dragon.y + dragon.height > enemy.y) {
-            lives--;
-            if (lives <= 0) {
-                gameOver = true;
-                document.getElementById("gameOverScreen").classList.remove("hidden"); // Show restart button
-            } else {
-                resetLevel();
-            }
-        }
-    });
-}
-
-// Update game logic
-function update() {
-    if (!gameOver) {
-        dragon.move();
-        enemies.forEach(enemy => enemy.move());
-        checkCollisions();
-
-        if (gems.length === 0) {
-            level++;
-            resetLevel();
-        }
+        ctx.fillText("Game Over! Refresh to restart", canvas.width / 2 - 100, canvas.height / 2);
     }
 }
 
@@ -257,15 +196,4 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-resetLevel();
 gameLoop();
-
-// Restart game
-document.getElementById("restartButton").addEventListener("click", () => {
-    gameOver = false;
-    score = 0;
-    level = 1;
-    lives = 3;
-    resetLevel();
-    document.getElementById("gameOverScreen").classList.add("hidden"); // Hide restart button
-});
