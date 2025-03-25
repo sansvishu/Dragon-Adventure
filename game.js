@@ -14,17 +14,20 @@ coinImg.src = "https://i.postimg.cc/0MbNMpCQ/gold-coin-removebg-preview.png";
 const monsterImg = new Image();
 monsterImg.src = "https://i.postimg.cc/0MFypbtC/monster-removebg-preview.png";
 
+// Sound effects
+const coinSound = new Audio("coin.mp3");
+const hitSound = new Audio("hit.mp3");
+const powerUpSound = new Audio("powerup.mp3");
+const gameOverSound = new Audio("gameover.mp3");
+const winSound = new Audio("win.mp3");
+
 // Game variables
 let score = 0;
 let level = 1;
 let lives = 3;
+let coinsNeeded = 5;
 let gameOver = false;
-let powerUps = [];
-
-// Sound effects
-const coinSound = new Audio("https://www.fesliyanstudios.com/play-mp3/2");
-const hitSound = new Audio("https://www.fesliyanstudios.com/play-mp3/3");
-const powerUpSound = new Audio("https://www.fesliyanstudios.com/play-mp3/4");
+let gameWin = false;
 
 // Dragon object
 class Dragon {
@@ -34,7 +37,6 @@ class Dragon {
         this.width = 50;
         this.height = 50;
         this.speed = 5;
-        this.ability = "none";
     }
 
     move() {
@@ -84,30 +86,26 @@ class Enemy {
     }
 }
 
-class PowerUp {
-    constructor(type) {
-        this.x = Math.random() * (canvas.width - 30);
-        this.y = Math.random() * (canvas.height - 100);
-        this.width = 25;
-        this.height = 25;
-        this.type = type;
-    }
-
-    draw() {
-        ctx.fillStyle = "yellow";
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-    }
-}
-
 // Initialize objects
 let dragon = new Dragon();
-let coins = Array.from({ length: 5 + level }, () => new Coin());
+let coins = Array.from({ length: coinsNeeded }, () => new Coin());
 let enemies = Array.from({ length: level }, () => new Enemy());
 
 // Key events
 let keys = {};
 window.addEventListener("keydown", (e) => (keys[e.key] = true));
 window.addEventListener("keyup", (e) => (keys[e.key] = false));
+
+// Restart & Next Level Buttons
+document.getElementById("restartButton").addEventListener("click", () => {
+    resetGame();
+    document.getElementById("gameOverScreen").classList.add("hidden");
+});
+
+document.getElementById("nextLevelButton").addEventListener("click", () => {
+    nextLevel();
+    document.getElementById("winScreen").classList.add("hidden");
+});
 
 // Check collisions
 function isColliding(a, b) {
@@ -119,80 +117,52 @@ function isColliding(a, b) {
     );
 }
 
-// Reset level
-function resetLevel() {
-    coins = Array.from({ length: 5 + level }, () => new Coin());
+// Reset game
+function resetGame() {
+    score = 0;
+    level = 1;
+    lives = 3;
+    coinsNeeded = 5;
+    gameOver = false;
+    gameWin = false;
+    dragon = new Dragon();
+    coins = Array.from({ length: coinsNeeded }, () => new Coin());
     enemies = Array.from({ length: level }, () => new Enemy());
-    powerUps = [];
 }
 
-// Game loop
-function update() {
-    if (!gameOver) {
-        dragon.move();
-
-        // Check coin collection
-        for (let i = 0; i < coins.length; i++) {
-            if (isColliding(dragon, coins[i])) {
-                coins.splice(i, 1);
-                score += 10;
-                coinSound.play();
-                if (Math.random() < 0.2) powerUps.push(new PowerUp("shield"));
-            }
-        }
-
-        // Check power-up collection
-        for (let i = 0; i < powerUps.length; i++) {
-            if (isColliding(dragon, powerUps[i])) {
-                powerUps.splice(i, 1);
-                powerUpSound.play();
-                lives += 1;
-            }
-        }
-
-        // Check enemy collision
-        for (let enemy of enemies) {
-            enemy.move();
-            if (isColliding(dragon, enemy)) {
-                hitSound.play();
-                lives -= 1;
-                if (lives <= 0) gameOver = true;
-                resetLevel();
-            }
-        }
-
-        // Level progression
-        if (coins.length === 0) {
-            level += 1;
-            resetLevel();
-        }
-    }
-}
-
-// Draw everything
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    dragon.draw();
-    coins.forEach((coin) => coin.draw());
-    enemies.forEach((enemy) => enemy.draw());
-    powerUps.forEach((power) => power.draw());
-
-    // UI
-    ctx.fillStyle = "white";
-    ctx.font = "20px Arial";
-    ctx.fillText(`Score: ${score}`, 10, 30);
-    ctx.fillText(`Lives: ${lives}`, 10, 60);
-    ctx.fillText(`Level: ${level}`, 10, 90);
-
-    if (gameOver) {
-        ctx.fillText("Game Over! Refresh to restart", canvas.width / 2 - 100, canvas.height / 2);
-    }
+// Next level
+function nextLevel() {
+    level += 1;
+    coinsNeeded += 2;
+    gameWin = false;
+    dragon = new Dragon();
+    coins = Array.from({ length: coinsNeeded }, () => new Coin());
+    enemies = Array.from({ length: level }, () => new Enemy());
 }
 
 // Game loop
 function gameLoop() {
-    update();
-    draw();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    dragon.move();
+    dragon.draw();
+    coins.forEach((coin) => coin.draw());
+    enemies.forEach((enemy) => enemy.move() && enemy.draw());
+
+    // Check coin collection
+    coins = coins.filter((coin) => {
+        if (isColliding(dragon, coin)) {
+            score += 10;
+            coinSound.play();
+            return false;
+        }
+        return true;
+    });
+
+    if (coins.length === 0) {
+        document.getElementById("winScreen").classList.remove("hidden");
+        winSound.play();
+    }
+
     requestAnimationFrame(gameLoop);
 }
 
