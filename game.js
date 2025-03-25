@@ -19,15 +19,19 @@ const levelUpPopup = document.getElementById("levelUpPopup");
 const restartButton = document.getElementById("restartButton");
 const continueButton = document.getElementById("continueButton");
 
-const backgrounds = ["forest.jpg", "desert.jpg", "mountain.jpg"];
+const backgrounds = [
+    "https://i.postimg.cc/63HnQPS3/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg", 
+    "https://i.postimg.cc/QC9bRzXY/desert.jpg",
+    "https://i.postimg.cc/43MHQ6Ct/mountain.jpg"
+];
 const dragonTypes = [
-    { name: "Fire", image: "fire-dragon.png" },
-    { name: "Ice", image: "ice-dragon.png" },
-    { name: "Storm", image: "storm-dragon.png" }
+    { name: "Fire", image: "https://i.postimg.cc/8scvWm2H/dragon-removebg-preview.png" },
+    { name: "Ice", image: "https://i.postimg.cc/dQVy6YFZ/ice-dragon.png" },
+    { name: "Storm", image: "https://i.postimg.cc/85C7XyYD/storm-dragon.png" }
 ];
 
-let currentBackground = backgrounds[0];
-let currentDragon = dragonTypes[0];
+let backgroundImage = new Image();
+backgroundImage.src = backgrounds[0];
 
 class Dragon {
     constructor() {
@@ -52,66 +56,5 @@ class Dragon {
     }
 }
 
-class Gem {
-    constructor() {
-        this.width = 25;
-        this.height = 25;
-        this.x = Math.random() * (canvas.width - this.width);
-        this.y = Math.random() * (canvas.height - 150);
-        this.image = new Image();
-        this.image.src = "coin.png";
-    }
-
-    draw() {
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-    }
-}
-
-function checkCollisions() {
-    gems.forEach((gem, index) => {
-        if (dragon.x < gem.x + gem.width && dragon.x + dragon.width > gem.x &&
-            dragon.y < gem.y + gem.height && dragon.y + dragon.height > gem.y) {
-            score += 10;
-            coinsCollected++;
-            gems.splice(index, 1);
-            gems.push(new Gem());
-
-            scoreDisplay.textContent = score;
-            if (coinsCollected >= coinTarget) levelUp();
-        }
-    });
-}
-
-function levelUp() {
-    level++;
-    levelDisplay.textContent = level;
-    coinTarget += 5;
-    coinsCollected = 0;
-    currentBackground = backgrounds[level % backgrounds.length];
-    currentDragon = dragonTypes[level % dragonTypes.length];
-    document.body.style.background = `url('${currentBackground}') no-repeat center center/cover`;
-
-    dragonTypeDisplay.textContent = currentDragon.name;
-    levelUpPopup.classList.remove("hidden");
-}
-
-function endGame() {
-    gameOver = true;
-    document.getElementById("finalScore").textContent = score;
-    gameOverPopup.classList.remove("hidden");
-}
-
-restartButton.addEventListener("click", () => {
-    location.reload();
-});
-
-continueButton.addEventListener("click", () => {
-    levelUpPopup.classList.add("hidden");
-    dragon = new Dragon();
-    gems = Array.from({ length: 5 }, () => new Gem());
-    gameLoop();
-});
-
-dragon = new Dragon();
-gems = Array.from({ length: 5 }, () => new Gem());
-gameLoop();
+function draw() {
+    ctx.clearRect(0, 0, canvas.width,
