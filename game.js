@@ -1,57 +1,45 @@
-// Load sound files
-const fireballSound = new Audio('fireball.mp3');  // Fireball sound
-const gemCollectSound = new Audio('gemCollect.mp3');  // Gem collect sound
-const dragonRoarSound = new Audio('dragonRoar.mp3');  // Dragon roar sound
-const gameOverSound = new Audio('gameOver.mp3');  // Game over sound
-const levelUpSound = new Audio('levelUp.mp3');  // Level up sound
-const backgroundMusic = new Audio('backgroundMusic.mp3');  // Background music
+// Set up canvas
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = 800;
+canvas.height = 600;
 
-// Set background music to loop
+// Game variables
+let score = 0;
+let level = 1;
+let lives = 3;
+let gameOver = false;
+let targetCoins = 0;
+let coinsCollected = 0;
+let currentDragon = "Fire";  // Default dragon
+const FPS = 60;
+let dragon;
+let gems = [];
+let enemies = [];
+
+// Sound variables
+const fireballSound = new Audio('fireball.mp3'); 
+const gemCollectSound = new Audio('gemCollect.mp3'); 
+const dragonRoarSound = new Audio('dragonRoar.mp3'); 
+const gameOverSound = new Audio('gameOver.mp3'); 
+const levelUpSound = new Audio('levelUp.mp3'); 
+const backgroundMusic = new Audio('backgroundMusic.mp3'); 
 backgroundMusic.loop = true;
-backgroundMusic.volume = 0.2; // Set volume to a comfortable level
+backgroundMusic.volume = 0.2;
 
-// Play background music at the start
-backgroundMusic.play();
+// Background setup
+const backgroundImage = new Image();
+backgroundImage.src = "https://i.postimg.cc/bs0QLhQh/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg";  // Background image URL
 
-// Function to play fireball sound
-function playFireballSound() {
-    fireballSound.play();
-}
+// Dragon properties
+const dragons = {
+    "Fire": { color: "red", ability: "Burn obstacles" },
+    "Ice": { color: "blue", ability: "Freeze enemies" },
+    "Earth": { color: "green", ability: "Dig through rocks" },
+    "Storm": { color: "purple", ability: "Fly faster" }
+};
 
-// Function to play gem collect sound
-function playGemCollectSound() {
-    gemCollectSound.play();
-}
-
-// Function to play dragon roar sound
-function playDragonRoarSound() {
-    dragonRoarSound.play();
-}
-
-// Function to play game over sound
-function playGameOverSound() {
-    gameOverSound.play();
-}
-
-// Function to play level up sound
-function playLevelUpSound() {
-    levelUpSound.play();
-}
-
-// Function to play background music (if paused or stopped)
-function playBackgroundMusic() {
-    if (backgroundMusic.paused) {
-        backgroundMusic.play();
-    }
-}
-
-// Function to stop background music when game over
-function stopBackgroundMusic() {
-    backgroundMusic.pause();
-    backgroundMusic.currentTime = 0;  // Reset the music to the beginning
-}
-
-// Dragon class: Call dragon roar when dragon moves or does an action
+// Dragon class
 class Dragon {
     constructor(type) {
         this.type = type;
@@ -69,17 +57,14 @@ class Dragon {
         if (keys.right && this.x + this.width < canvas.width) this.x += this.speed;
         if (keys.up && this.y > 0) this.y -= this.speed;
         if (keys.down && this.y + this.height < canvas.height) this.y += this.speed;
-
-        // Play dragon roar when dragon moves
-        playDragonRoarSound();
     }
 
     draw() {
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);  // Draw dragon image
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height); // Draw dragon image
     }
 }
 
-// Gem class: Play collect sound when the dragon collects a gem
+// Gem class
 class Gem {
     constructor() {
         this.width = 20;
@@ -95,7 +80,7 @@ class Gem {
     }
 }
 
-// Enemy class: Play sound when the dragon collides with an enemy
+// Enemy class
 class Enemy {
     constructor() {
         this.width = 50;
@@ -120,13 +105,63 @@ class Enemy {
     }
 }
 
-// Check collisions: Play sound when dragon collects a gem or hits an enemy
+// Handle key presses
+const keys = {
+    left: false,
+    right: false,
+    up: false,
+    down: false
+};
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") keys.left = true;
+    if (e.key === "ArrowRight") keys.right = true;
+    if (e.key === "ArrowUp") keys.up = true;
+    if (e.key === "ArrowDown") keys.down = true;
+});
+
+document.addEventListener("keyup", (e) => {
+    if (e.key === "ArrowLeft") keys.left = false;
+    if (e.key === "ArrowRight") keys.right = false;
+    if (e.key === "ArrowUp") keys.up = false;
+    if (e.key === "ArrowDown") keys.down = false;
+});
+
+// Update the UI to show the target coins
+function updateTargetCoins() {
+    document.getElementById("targetCoins").innerText = `Collect ${targetCoins} coins to clear the level.`;
+}
+
+// Reset level
+function resetLevel() {
+    dragon = new Dragon(currentDragon);
+    gems = [];
+    enemies = [];
+    coinsCollected = 0; // Reset collected coins count
+
+    // Increase the target coins for the next level
+    targetCoins = level * 10;  // For example, level 1 requires 10 coins, level 2 requires 20 coins, etc.
+    
+    // Update target coins display
+    updateTargetCoins();
+
+    for (let i = 0; i < 5 + level; i++) {
+        gems.push(new Gem());
+    }
+
+    for (let i = 0; i < level; i++) {
+        enemies.push(new Enemy());
+    }
+}
+
+// Check collisions
 function checkCollisions() {
     // Check if dragon collects gems
     gems.forEach((gem, index) => {
         if (dragon.x < gem.x + gem.width && dragon.x + dragon.width > gem.x &&
             dragon.y < gem.y + gem.height && dragon.y + dragon.height > gem.y) {
             score += 10;
+            coinsCollected++;  // Increment coin collection count
             gems.splice(index, 1);
             gems.push(new Gem());  // Spawn a new gem
 
@@ -159,12 +194,27 @@ function update() {
         enemies.forEach(enemy => enemy.move());
         checkCollisions();
 
-        // Play level up sound when all gems are collected
-        if (gems.length === 0) {
-            level++;
-            resetLevel();
-            playLevelUpSound();  // Play sound when level is up
+        // Check if level is cleared
+        if (coinsCollected >= targetCoins) {
+            levelUp();
         }
+    }
+}
+
+// Handle level up
+function levelUp() {
+    if (coinsCollected >= targetCoins) {
+        // Show "You Win" message
+        gameOver = true;
+        stopBackgroundMusic(); // Stop background music
+        playLevelUpSound();  // Play level-up sound
+        document.getElementById("levelUpScreen").classList.remove("hidden");  // Show "You Win" message
+
+        // Update level and target coin count for next level
+        setTimeout(() => {
+            level++;
+            document.getElementById("levelDetails").innerText = `Level ${level} - Collect ${level * 10} coins to clear the level.`;
+        }, 2000);  // Wait for 2 seconds before showing next level details
     }
 }
 
@@ -175,16 +225,18 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// Restart game
-document.getElementById("restartButton").addEventListener("click", () => {
-    gameOver = false;
-    score = 0;
-    level = 1;
-    lives = 3;
-    resetLevel();
-    document.getElementById("gameOverScreen").classList.add("hidden");  // Hide restart button
-    playBackgroundMusic();  // Restart background music when restarting the game
-});
+// Draw the game elements
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);  // Draw the background
 
-resetLevel();
-gameLoop();
+    // Draw dragon, gems, and enemies
+    dragon.draw();
+    gems.forEach(gem => gem.draw());
+    enemies.forEach(enemy => enemy.draw());
+
+    // Draw UI (score, lives, level)
+    ctx.fillStyle = "white";
+    ctx.font = "20px Arial";
+    ctx.fillText(`Score: ${score}`, 10, 30);
+    ctx.fillText(`Lives: ${l
