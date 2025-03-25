@@ -8,6 +8,17 @@
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
+    
+    <div id="gameOverScreen" class="hidden">
+        <h2>Game Over</h2>
+        <button id="restartButton">Restart</button>
+    </div>
+
+    <div id="winScreen" class="hidden">
+        <h2>You Win! Level <span id="nextLevelNumber"></span></h2>
+        <button id="nextLevelButton">Next Level</button>
+    </div>
+
     <script src="game.js"></script>
 </body>
 </html>
