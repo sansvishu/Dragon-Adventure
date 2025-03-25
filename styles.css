@@ -12,6 +12,18 @@ body {
     overflow: hidden; /* Prevent scrolling */
 }
 
+/* Background container */
+#backgroundContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://i.postimg.cc/gJGn8KRZ/backgroudn-of-game.jpg'); /* Your specified background image */
+    background-size: cover; /* Ensure it covers the entire screen */
+    background-position: center center; /* Center the image */
+    background-repeat: no-repeat; /* Prevent tiling */
+    animation: backgroundAnimation 30s linear infinite; /* Background animation (optional for subtle effect) */
+}
+
 /* Canvas styling */
 canvas {
     border: 5px solid #FFD700; /* Bright yellow border for the canvas */
@@ -105,19 +117,6 @@ canvas {
 }
 
 /* Styling for the background container (with a playful pattern) */
-#backgroundContainer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('https://i.postimg.cc/gJGn8KRZ/backgroudn-of-game.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center center;
-    animation: backgroundAnimation 30s linear infinite; /* Add a subtle background animation */
-}
-
 @keyframes backgroundAnimation {
     0% { background-position: center center; }
     100% { background-position: center top; }
