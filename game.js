@@ -1,4 +1,3 @@
-// Set up canvas
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = 800;
@@ -10,7 +9,7 @@ let level = 1;
 let lives = 3;
 let gameOver = false;
 let coinsCollected = 0;
-let coinTarget = 5; // Coins needed to complete level
+let coinTarget = 5;
 let dragon;
 let collectibles = [];
 let enemies = [];
@@ -59,7 +58,7 @@ class Dragon {
     }
 }
 
-// Collectible class (Coins & Necklaces)
+// Collectible class
 class Collectible {
     constructor(type) {
         this.width = 25;
@@ -101,7 +100,7 @@ class Enemy {
     }
 }
 
-// Draw function
+// Game loop functions
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
@@ -110,12 +109,11 @@ function draw() {
     collectibles.forEach(item => item.draw());
     enemies.forEach(enemy => enemy.draw());
 
-    // UI Elements
     ctx.fillStyle = "black";
     ctx.font = "22px Arial";
     ctx.fillText(`Lives: ${lives}`, 10, 30);
     ctx.fillText(`Level: ${level}`, 10, 60);
-    
+
     ctx.fillStyle = "darkbrown";
     ctx.fillText(`Score: ${score}`, canvas.width - 120, 30);
 
@@ -124,7 +122,6 @@ function draw() {
     }
 }
 
-// Game logic
 function update() {
     if (!gameOver) {
         dragon.move();
@@ -134,7 +131,6 @@ function update() {
     }
 }
 
-// Collision checks
 function checkCollisions() {
     collectibles.forEach((item, index) => {
         if (dragon.x < item.x + item.width && dragon.x + dragon.width > item.x &&
@@ -151,7 +147,6 @@ function checkCollisions() {
     }
 }
 
-// Level Up
 function levelUp() {
     level++;
     coinsCollected = 0;
@@ -163,7 +158,7 @@ function levelUp() {
     }, 1500);
 }
 
-// Game Loop
+// Game loop
 function gameLoop() {
     update();
     draw();
