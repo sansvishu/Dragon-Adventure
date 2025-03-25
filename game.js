@@ -148,21 +148,6 @@ function gameLoop() {
     coins.forEach((coin) => coin.draw());
     enemies.forEach((enemy) => enemy.move() && enemy.draw());
 
-    // Check coin collection
-    coins = coins.filter((coin) => {
-        if (isColliding(dragon, coin)) {
-            score += 10;
-            coinSound.play();
-            return false;
-        }
-        return true;
-    });
-
-    if (coins.length === 0) {
-        document.getElementById("winScreen").classList.remove("hidden");
-        winSound.play();
-    }
-
     requestAnimationFrame(gameLoop);
 }
 
