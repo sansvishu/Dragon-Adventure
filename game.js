@@ -12,17 +12,22 @@ let coinsCollected = 0;
 let coinTarget = 10;
 let gameOver = false;
 
-// Background and Dragon List
-const backgrounds = [
-    "https://i.postimg.cc/63HnQPS3/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg",
-    "https://i.postimg.cc/tCNpT6Jb/forest.jpg",
-    "https://i.postimg.cc/8Pc9tHHV/desert.jpg"
-];
+// Elements
+const scoreDisplay = document.getElementById("score").querySelector("span");
+const levelDisplay = document.getElementById("level");
+const livesDisplay = document.getElementById("lives");
+const dragonTypeDisplay = document.getElementById("dragonType");
+const gameOverPopup = document.getElementById("gameOverPopup");
+const levelUpPopup = document.getElementById("levelUpPopup");
+const restartButton = document.getElementById("restartButton");
+const continueButton = document.getElementById("continueButton");
 
+// Backgrounds & Dragons
+const backgrounds = ["forest.jpg", "desert.jpg", "mountain.jpg"];
 const dragonTypes = [
-    { name: "Fire", image: "https://i.postimg.cc/8scvWm2H/dragon-removebg-preview.png" },
-    { name: "Ice", image: "https://i.postimg.cc/Y0sX7F2Q/ice-dragon.png" },
-    { name: "Storm", image: "https://i.postimg.cc/KjKqJMQy/storm-dragon.png" }
+    { name: "Fire", image: "fire-dragon.png" },
+    { name: "Ice", image: "ice-dragon.png" },
+    { name: "Storm", image: "storm-dragon.png" }
 ];
 
 let currentBackground = backgrounds[0];
@@ -60,7 +65,7 @@ class Gem {
         this.x = Math.random() * (canvas.width - this.width);
         this.y = Math.random() * (canvas.height - 150);
         this.image = new Image();
-        this.image.src = "https://i.postimg.cc/hzy76XdT/gold-coin-removebg-preview.png";
+        this.image.src = "coin.png";
     }
 
     draw() {
@@ -68,7 +73,7 @@ class Gem {
     }
 }
 
-// Handle Collisions
+// Check Collisions
 function checkCollisions() {
     gems.forEach((gem, index) => {
         if (dragon.x < gem.x + gem.width && dragon.x + dragon.width > gem.x &&
@@ -78,12 +83,8 @@ function checkCollisions() {
             gems.splice(index, 1);
             gems.push(new Gem());
 
-            document.getElementById("coins").textContent = coinsCollected;
-            document.getElementById("score").querySelector("span").textContent = score;
-
-            if (coinsCollected >= coinTarget) {
-                levelUp();
-            }
+            scoreDisplay.textContent = score;
+            if (score % 200 === 0) levelUp();
         }
     });
 }
@@ -91,44 +92,37 @@ function checkCollisions() {
 // Level Up
 function levelUp() {
     level++;
-    coinTarget += 5;
-    coinsCollected = 0;
-    
+    levelDisplay.textContent = level;
+
     currentBackground = backgrounds[level % backgrounds.length];
     currentDragon = dragonTypes[level % dragonTypes.length];
-
-    document.getElementById("level").textContent = level;
-    document.getElementById("dragonType").textContent = currentDragon.name;
-    document.getElementById("coinTarget").textContent = coinTarget;
     document.body.style.background = `url('${currentBackground}') no-repeat center center/cover`;
 
-    dragon = new Dragon();
+    dragonTypeDisplay.textContent = currentDragon.name;
+    levelUpPopup.classList.remove("hidden");
 }
 
-// Game Over Function
+// Game Over
 function endGame() {
     gameOver = true;
     document.getElementById("finalScore").textContent = score;
-    document.getElementById("gameOverPopup").style.display = "block";
-}
-
-// Game Loop
-function gameLoop() {
-    if (!gameOver) {
-        dragon.move();
-        checkCollisions();
-        draw();
-        requestAnimationFrame(gameLoop);
-    }
+    gameOverPopup.classList.remove("hidden");
 }
 
 // Restart Game
-document.getElementById("restartButton").addEventListener("click", () => {
+restartButton.addEventListener("click", () => {
     location.reload();
 });
 
+// Continue to Next Level
+continueButton.addEventListener("click", () => {
+    levelUpPopup.classList.add("hidden");
+    dragon = new Dragon();
+    gems = Array.from({ length: 5 }, () => new Gem());
+    gameLoop();
+});
+
 // Start Game
-document.getElementById("coinTarget").textContent = coinTarget;
 dragon = new Dragon();
 gems = Array.from({ length: 5 }, () => new Gem());
 gameLoop();
