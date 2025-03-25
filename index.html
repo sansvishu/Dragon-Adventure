@@ -7,8 +7,26 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <!-- Game Info Section -->
+    <div class="game-info">
+        <p>Lives: <span id="lives">3</span></p>
+        <p>Level: <span id="level">1</span></p>
+        <p>Dragon: <span id="dragonType">Fire</span></p>
+    </div>
+
+    <!-- Score Display -->
+    <p id="score">Score: <span>0</span></p>
+
+    <!-- Game Canvas -->
     <canvas id="gameCanvas"></canvas>
-    <button id="restartButton" class="hidden">Restart</button>
+
+    <!-- Game Over Popup -->
+    <div id="gameOverPopup" class="hidden">
+        <h2>Game Over!</h2>
+        <button id="restartButton">Restart Game</button>
+    </div>
+
     <script src="game.js"></script>
 </body>
 </html>
