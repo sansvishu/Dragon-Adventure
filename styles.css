@@ -12,12 +12,12 @@ body {
     overflow: hidden; /* Prevent scrolling */
 }
 
-/* Background container */
+/* Background container with the new image */
 #backgroundContainer {
     position: relative;
     width: 100%;
     height: 100%;
-    background-image: url('https://i.postimg.cc/gJGn8KRZ/backgroudn-of-game.jpg'); /* Your specified background image */
+    background-image: url('https://i.postimg.cc/L6wN945n/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg'); /* New background image */
     background-size: cover; /* Ensure it covers the entire screen */
     background-position: center center; /* Center the image */
     background-repeat: no-repeat; /* Prevent tiling */
@@ -120,4 +120,15 @@ canvas {
 @keyframes backgroundAnimation {
     0% { background-position: center center; }
     100% { background-position: center top; }
+}
+
+/* Playful animation for the "Level Up" text */
+#levelUpText {
+    animation: bounceIn 1s ease-out;
+}
+
+@keyframes bounceIn {
+    0% { opacity: 0; transform: translateY(-30px); }
+    60% { opacity: 1; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
