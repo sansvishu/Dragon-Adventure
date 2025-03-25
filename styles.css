@@ -2,8 +2,7 @@ body {
     margin: 0;
     overflow: hidden;
     text-align: center;
-    background: url('https://i.postimg.cc/L6wN945n/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg') no-repeat center center fixed;
-    background-size: cover;
+    font-family: Arial, sans-serif;
 }
 
 canvas {
@@ -11,4 +10,31 @@ canvas {
     margin: auto;
     background-color: rgba(0, 0, 0, 0.3);
     border: 2px solid white;
+}
+
+.hidden {
+    display: none;
+}
+
+#gameOverScreen, #nextLevelScreen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+button:hover {
+    background-color: rgba(0, 0, 0, 0.9);
 }
