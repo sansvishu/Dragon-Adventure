@@ -8,25 +8,31 @@
 </head>
 <body>
 
-    <!-- Game Info Section -->
+    <!-- Game Info Section (Left Side) -->
     <div class="game-info">
         <p>Lives: <span id="lives">3</span></p>
         <p>Level: <span id="level">1</span></p>
         <p>Dragon: <span id="dragonType">Fire</span></p>
-        <p>Coins: <span id="coins">0</span> / <span id="coinTarget">10</span></p>
     </div>
 
-    <!-- Score Display -->
+    <!-- Score Display (Right Side) -->
     <p id="score">Score: <span>0</span></p>
 
     <!-- Game Canvas -->
     <canvas id="gameCanvas"></canvas>
 
     <!-- Game Over Popup -->
-    <div id="gameOverPopup" class="hidden">
+    <div id="gameOverPopup" class="popup hidden">
         <h2>Game Over!</h2>
         <p>Your final score: <span id="finalScore">0</span></p>
         <button id="restartButton">Restart Game</button>
+    </div>
+
+    <!-- Level Up Popup -->
+    <div id="levelUpPopup" class="popup hidden">
+        <h2>Level <span id="newLevel">1</span>!</h2>
+        <p>Get ready for the next challenge!</p>
+        <button id="continueButton">Continue</button>
     </div>
 
     <script src="game.js"></script>
