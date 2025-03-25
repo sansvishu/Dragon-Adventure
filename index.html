@@ -5,34 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dragon Adventure: The Magic Kingdom</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Favicon for the game -->
-    <link rel="icon" href="https://i.postimg.cc/hzy76XdT/gold-coin-removebg-preview.png" type="image/png">
 </head>
 <body>
-    <!-- Background container to hold the game canvas and additional UI elements -->
-    <div id="backgroundContainer">
-        <canvas id="gameCanvas"></canvas>
-
-        <!-- Game over screen with restart button -->
-        <div id="gameOverScreen">
-            <h1>GAME OVER!</h1>
-            <p>Sorry, you lost all your lives!</p>
-            <button id="restartButton">Restart Game</button>
-        </div>
-
-        <!-- Level up text that appears when player levels up -->
-        <div id="levelUpText">Level Up!</div>
-
-        <!-- Display current game stats (score, level, etc.) -->
-        <div class="ui-text">
-            <p>Score: <span id="score">0</span></p>
-            <p>Lives: <span id="lives">3</span></p>
-            <p>Level: <span id="level">1</span></p>
-            <p>Dragon: <span id="currentDragon">Fire</span></p>
-        </div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="gameOverScreen" class="hidden">
+        <p>Game Over! Your score: <span id="finalScore"></span></p>
+        <button id="restartButton">Restart</button>
     </div>
-
-    <!-- External script for game logic -->
     <script src="game.js"></script>
 </body>
 </html>
