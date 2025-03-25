@@ -1,42 +1,14 @@
 body {
     margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: black;
+    overflow: hidden;
+    text-align: center;
+    background: url('https://i.postimg.cc/L6wN945n/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg') no-repeat center center fixed;
+    background-size: cover;
 }
 
 canvas {
-    border: 1px solid white;
-}
-
-#gameOverScreen, #levelUpScreen {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    border-radius: 10px;
-    color: white;
-    text-align: center;
-}
-
-.hidden {
-    display: none;
-}
-
-button {
-    margin-top: 10px;
-    padding: 10px;
-    background-color: #f39c12;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #e67e22;
+    display: block;
+    margin: auto;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 2px solid white;
 }
