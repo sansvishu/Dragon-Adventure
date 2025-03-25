@@ -1,77 +1,62 @@
-/* General Styles */
 body {
     margin: 0;
     padding: 0;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-    background: url('forest.jpg') no-repeat center center/cover;
-    transition: background 0.5s ease-in-out;
+    background-color: black;
+    font-family: Arial, sans-serif;
 }
 
-/* Game Info (Left Side) */
-.game-info {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    color: black;
-    font-size: 18px;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 10px;
-    border-radius: 10px;
-}
-
-/* Score Display (Right Side) */
-#score {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 24px;
-    font-weight: bold;
-    color: darkbrown;
-}
-
-/* Game Canvas */
 canvas {
-    border: 5px solid white;
-    border-radius: 15px;
-    box-shadow: 0px 0px 15px white;
+    border: 2px solid white;
 }
 
-/* Popups */
-.popup {
-    display: none;
+#gameOverScreen {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background: rgba(0, 0, 0, 0.8);
     color: white;
-    padding: 30px;
-    border-radius: 10px;
+    padding: 20px;
     text-align: center;
-    box-shadow: 0px 5px 15px rgba(255, 255, 255, 0.5);
-}
-
-button {
-    background: orange;
-    color: white;
-    font-size: 22px;
-    padding: 10px 20px;
-    border: none;
     border-radius: 10px;
-    cursor: pointer;
-    transition: 0.3s;
 }
 
-button:hover {
+#gameOverScreen p {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+#restartButton {
     background: red;
-    transform: scale(1.1);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#restartButton:hover {
+    background: darkred;
 }
 
 .hidden {
     display: none;
+}
+
+#levelUpPopup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: yellow;
+    color: black;
+    font-size: 30px;
+    padding: 20px;
+    border-radius: 10px;
+    font-weight: bold;
 }
