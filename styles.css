@@ -1,3 +1,4 @@
+/* Body styling */
 body {
     margin: 0;
     padding: 0;
@@ -5,54 +6,119 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: black;
-    font-family: Arial, sans-serif;
+    background-color: #87CEEB; /* Light blue background for a friendly look */
+    font-family: 'Comic Sans MS', sans-serif; /* Fun font for a kid-friendly design */
+    color: white; /* White text for readability */
+    overflow: hidden; /* Prevent scrolling */
 }
 
+/* Canvas styling */
 canvas {
-    border: 2px solid white;
+    border: 5px solid #FFD700; /* Bright yellow border for the canvas */
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); /* Glow effect around the canvas */
+    border-radius: 15px; /* Rounded corners for a soft look */
 }
 
-#gameOverScreen, #levelUpPopup {
+/* Game over screen styling */
+#gameOverScreen {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 20px;
-    text-align: center;
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
+    padding: 30px 50px;
     border-radius: 10px;
+    display: none; /* Hidden by default */
+    text-align: center;
+    font-size: 30px;
+    color: #FF6347; /* Tomato red text for emphasis */
+    box-shadow: 0 0 20px rgba(255, 99, 71, 0.7); /* Glowing red border */
 }
 
-#gameOverScreen p {
-    font-size: 24px;
-    margin-bottom: 10px;
+/* Game over text */
+#gameOverScreen h1 {
+    font-size: 50px;
+    color: #FFD700; /* Golden text color */
+    margin-bottom: 20px;
 }
 
+/* Restart button styling */
 #restartButton {
-    background: red;
+    padding: 10px 20px;
+    background-color: #32CD32; /* Lime green button */
     color: white;
     border: none;
-    padding: 10px 20px;
-    font-size: 18px;
+    border-radius: 8px;
+    font-size: 20px;
     cursor: pointer;
-    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(50, 205, 50, 0.8); /* Green glow effect */
+    transition: background-color 0.3s ease;
 }
 
 #restartButton:hover {
-    background: darkred;
+    background-color: #228B22; /* Darker green on hover */
 }
 
-.hidden {
-    display: none;
-}
-
-#levelUpPopup {
-    background: yellow;
-    color: black;
-    font-size: 30px;
-    padding: 20px;
-    border-radius: 10px;
+/* UI text (score, level, etc.) */
+.ui-text {
+    font-size: 20px;
     font-weight: bold;
+    color: #FF1493; /* Deep pink color for the UI */
+    text-shadow: 2px 2px 5px rgba(255, 20, 147, 0.8); /* Shadow effect to make it pop */
+}
+
+.ui-text span {
+    color: #FFD700; /* Golden color for individual UI values like score */
+}
+
+/* Animation for the canvas (shake on game over) */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-10px); }
+    100% { transform: translateX(0); }
+}
+
+.canvas-shake {
+    animation: shake 0.5s ease-out; /* Add a shake animation effect on game over */
+}
+
+/* Style for the "Collecting Gems" or "Level Up" Text */
+#levelUpText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 40px;
+    font-weight: bold;
+    color: #FFD700;
+    text-shadow: 2px 2px 10px rgba(255, 215, 0, 0.8);
+    display: none; /* Hidden by default */
+    animation: levelUpAnimation 2s ease-in-out;
+}
+
+@keyframes levelUpAnimation {
+    0% { opacity: 0; transform: translate(-50%, -40%); }
+    50% { opacity: 1; transform: translate(-50%, -50%); }
+    100% { opacity: 0; transform: translate(-50%, -60%); }
+}
+
+/* Styling for the background container (with a playful pattern) */
+#backgroundContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://i.postimg.cc/gJGn8KRZ/backgroudn-of-game.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    animation: backgroundAnimation 30s linear infinite; /* Add a subtle background animation */
+}
+
+@keyframes backgroundAnimation {
+    0% { background-position: center center; }
+    100% { background-position: center top; }
 }
