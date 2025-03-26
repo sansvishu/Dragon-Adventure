@@ -1,35 +1,151 @@
 body {
     margin: 0;
+    padding: 0;
     overflow: hidden;
     background-color: #000;
+    font-family: Arial, sans-serif;
+    touch-action: manipulation;
 }
 
-canvas {
-    display: block;
+#gameContainer {
+    position: relative;
+    width: 800px;
+    height: 600px;
     margin: 0 auto;
-    background-color: #1e1e1e;
+    overflow: hidden;
 }
 
-#gameOverlay {
+#gameCanvas {
+    background-image: url('https://i.postimg.cc/bs0QLhQh/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg');
+    background-size: cover;
+    display: block;
+}
+
+#menuScreen, #gameOverScreen {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    z-index: 10;
+}
+
+#gameOverScreen {
     display: none;
 }
 
-button {
-    background-color: #4646b2;
-    color: white;
-    font-size: 20px;
-    padding: 10px 20px;
-    margin: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+h1 {
+    font-size: 48px;
+    margin-bottom: 30px;
+    color: #f0f0f0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-button:hover {
-    background-color: #6363db;
+h2 {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.button {
+    width: 200px;
+    height: 60px;
+    margin: 10px;
+    background-color: #3333ff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.button:hover {
+    background-color: #5555ff;
+    transform: scale(1.05);
+}
+
+#hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 24px;
+    z-index: 5;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 10px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+#abilityIndicator {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    width: 200px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#abilityBar {
+    height: 100%;
+    width: 100%;
+    background-color: #33ff33;
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.1s;
+}
+
+#abilityText {
+    position: absolute;
+    bottom: 35px;
+    left: 10px;
+    color: white;
+    font-size: 16px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+    border-radius: 5px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.mobile-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: none;
+}
+
+.mobile-btn {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+    user-select: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+#upBtn { bottom: 70px; right: 70px; }
+#downBtn { bottom: 0; right: 70px; }
+#leftBtn { bottom: 35px; right: 140px; }
+#rightBtn { bottom: 35px; right: 0; }
+#abilityBtn { 
+    bottom: 70px; right: 140px; 
+    background-color: rgba(255, 50, 50, 0.7);
 }
