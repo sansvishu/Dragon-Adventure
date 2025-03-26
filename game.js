@@ -1,12 +1,11 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Dynamically set canvas size based on the window size
+// Set canvas size dynamically
 function resizeCanvas() {
-    canvas.width = window.innerWidth * 0.8;  // 80% of the screen width
-    canvas.height = window.innerHeight * 0.7;  // 70% of the screen height
+    canvas.width = window.innerWidth * 0.8;
+    canvas.height = window.innerHeight * 0.7;
 }
-
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
@@ -30,12 +29,10 @@ let enemiesSpeed = 1.5;
 let enemyCount = 3;
 let coins = [];
 let enemies = [];
-let powerUps = [];
 
 // Sound effects
 const coinSound = new Audio("https://www.fesliyanstudios.com/play-mp3/2");
 const hitSound = new Audio("https://www.fesliyanstudios.com/play-mp3/7");
-const powerUpSound = new Audio("https://www.fesliyanstudios.com/play-mp3/4");
 
 // Dragon object
 class Dragon {
@@ -52,12 +49,6 @@ class Dragon {
         if (keys["ArrowRight"] && this.x < canvas.width - this.width) this.x += this.speed;
         if (keys["ArrowUp"] && this.y > 0) this.y -= this.speed;
         if (keys["ArrowDown"] && this.y < canvas.height - this.height) this.y += this.speed;
-
-        // Mobile controls - swipe to move
-        if (touchControls.moveLeft) this.x -= this.speed;
-        if (touchControls.moveRight) this.x += this.speed;
-        if (touchControls.moveUp) this.y -= this.speed;
-        if (touchControls.moveDown) this.y += this.speed;
     }
 
     draw() {
@@ -102,70 +93,15 @@ class Enemy {
     }
 }
 
-// Power-up object
-class PowerUp {
-    constructor(type) {
-        this.x = Math.random() * (canvas.width - 30);
-        this.y = Math.random() * (canvas.height - 100);
-        this.width = 25;
-        this.height = 25;
-        this.type = type;
-    }
-
-    draw() {
-        ctx.fillStyle = "yellow";
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-    }
-}
-
 // Initialize objects
 let dragon = new Dragon();
 let keys = {};
-let touchControls = {};
 
-// Key event listeners for desktop
+// Key event listeners
 window.addEventListener("keydown", (e) => (keys[e.key] = true));
 window.addEventListener("keyup", (e) => (keys[e.key] = false));
 
-// Touch event listeners for mobile
-window.addEventListener("touchstart", (e) => handleTouchStart(e), false);
-window.addEventListener("touchmove", (e) => handleTouchMove(e), false);
-window.addEventListener("touchend", () => resetTouchControls(), false);
-
-function handleTouchStart(e) {
-    const touch = e.touches[0];
-    touchControls.startX = touch.pageX;
-    touchControls.startY = touch.pageY;
-}
-
-function handleTouchMove(e) {
-    const touch = e.touches[0];
-    const moveX = touch.pageX - touchControls.startX;
-    const moveY = touch.pageY - touchControls.startY;
-
-    if (Math.abs(moveX) > Math.abs(moveY)) {
-        touchControls.moveLeft = moveX < 0;
-        touchControls.moveRight = moveX > 0;
-    } else {
-        touchControls.moveUp = moveY < 0;
-        touchControls.moveDown = moveY > 0;
-    }
-}
-
-function resetTouchControls() {
-    touchControls = {};
-}
-
-// Resize the canvas to fit screen size
-function resizeCanvas() {
-    canvas.width = window.innerWidth * 0.8; // 80% of the screen width
-    canvas.height = window.innerHeight * 0.7; // 70% of the screen height
-}
-
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-
-// Check collisions
+// Collision detection
 function isColliding(a, b) {
     return (
         a.x < b.x + b.width &&
@@ -188,15 +124,13 @@ function update() {
                 coinSound.play();
                 if (coins.length === 0) {
                     level += 1;
-                    coinsRequiredForNextLevel += 2; // Slightly more coins per level
-                    enemyCount += 1; // Add one more enemy
                     resetLevel();
                     showNextLevelScreen();
                 }
             }
         }
 
-        // Move and draw enemies
+        // Enemy collision
         for (let enemy of enemies) {
             enemy.move();
             if (isColliding(dragon, enemy)) {
@@ -206,7 +140,6 @@ function update() {
                     gameOver = true;
                     showGameOverScreen();
                 }
-                resetLevel();
             }
         }
     }
@@ -218,27 +151,14 @@ function draw() {
     dragon.draw();
     coins.forEach((coin) => coin.draw());
     enemies.forEach((enemy) => enemy.draw());
-    powerUps.forEach((power) => power.draw());
-
-    // UI
-    ctx.fillStyle = "white";
-    ctx.font = "20px Arial";
-    ctx.fillText(`Score: ${score}`, 10, 30);
-    ctx.fillText(`Lives: ${lives}`, 10, 60);
-    ctx.fillText(`Level: ${level}`, 10, 90);
-
-    if (gameOver) {
-        ctx.fillText("Game Over! Refresh to restart", canvas.width / 2 - 100, canvas.height / 2);
-    }
 }
 
-// Start the game loop
+// Game loop
 function gameLoop() {
     update();
     draw();
     requestAnimationFrame(gameLoop);
 }
-
 gameLoop();
 
 // Restart the game
@@ -249,29 +169,16 @@ function restartGame() {
     gameOver = false;
     resetLevel();
     document.getElementById("gameOverScreen").classList.add("hidden");
-    gameLoop();
 }
 
 // Go to next level
 function nextLevel() {
     document.getElementById("nextLevelScreen").classList.add("hidden");
     resetLevel();
-    gameLoop();
 }
 
 // Reset the level
 function resetLevel() {
     coins = Array.from({ length: coinsRequiredForNextLevel }, () => new Coin());
     enemies = Array.from({ length: enemyCount }, () => new Enemy());
-    powerUps = [];
-}
-
-// Show Game Over screen
-function showGameOverScreen() {
-    document.getElementById("gameOverScreen").classList.remove("hidden");
-}
-
-// Show Next Level screen
-function showNextLevelScreen() {
-    document.getElementById("nextLevelScreen").classList.remove("hidden");
 }
