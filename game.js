@@ -6,15 +6,15 @@ const DRAGON_TYPES = {
         ability: "Fireball", 
         cooldown: 3000, 
         damage: 3,
-        description: "Shoots powerful fireballs"
+        abilitySound: "fireball"
     },
     "Ice": { 
-        color: "#33ccff", 
+        color: "#3333ff", 
         speed: 6, 
         ability: "Freeze", 
         cooldown: 5000, 
         duration: 3000,
-        description: "Freezes enemies temporarily"
+        abilitySound: "freeze"
     },
     "Storm": { 
         color: "#aa33ff", 
@@ -22,7 +22,7 @@ const DRAGON_TYPES = {
         ability: "Lightning", 
         cooldown: 4000, 
         damage: 2,
-        description: "Calls down lightning strikes"
+        abilitySound: "lightning"
     }
 };
 
@@ -43,8 +43,7 @@ let powerupsActive = {
 };
 let powerupEndTime = 0;
 let isMobile = false;
-let imagesLoaded = 0;
-const totalImages = 5;
+let sounds = {};
 
 // Game Objects
 let dragon = {
@@ -58,44 +57,26 @@ let powerups = [];
 let abilities = [];
 let boss = null;
 
-// Sound Effects
-const sounds = {
-    gem: new Howl({ src: ['https://assets.codepen.io/21542/howler-demo-sound.mp3'], volume: 0.7 }),
-    powerup: new Howl({ src: ['https://assets.codepen.io/21542/howler-demo-powerup.mp3'], volume: 0.7 }),
-    levelup: new Howl({ src: ['https://assets.codepen.io/21542/howler-demo-levelup.mp3'], volume: 0.7 }),
-    gameover: new Howl({ src: ['https://assets.codepen.io/21542/howler-demo-gameover.mp3'], volume: 0.7 }),
-    boss: new Howl({ src: ['https://assets.codepen.io/21542/howler-demo-boss.mp3'], volume: 0.7 }),
-    ability: new Howl({ src: ['https://assets.codepen.io/21542/howler-demo-ability.mp3'], volume: 0.7 }),
-    hit: new Howl({ src: ['https://assets.codepen.io/21542/howler-demo-hit.mp3'], volume: 0.7 })
+// Image assets
+const assets = {
+    bgImage: 'https://i.postimg.cc/bs0QLhQh/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg',
+    dragonImage: 'https://i.postimg.cc/K3TvQxwh/dragon-removebg-preview.png',
+    coinImage: 'https://i.postimg.cc/0MbNMpCQ/gold-coin-removebg-preview.png',
+    monsterImage: 'https://i.postimg.cc/0MFypbtC/monster-removebg-preview.png',
+    powerupImage: 'https://i.postimg.cc/k2R3bf0L/star-removebg-preview.png'
 };
 
-// Load images
-const bgImage = new Image();
-bgImage.src = 'https://i.postimg.cc/bs0QLhQh/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg';
-bgImage.onload = imageLoaded;
-
-const dragonImage = new Image();
-dragonImage.src = 'https://i.postimg.cc/K3TvQxwh/dragon-removebg-preview.png';
-dragonImage.onload = imageLoaded;
-
-const coinImage = new Image();
-coinImage.src = 'https://i.postimg.cc/0MbNMpCQ/gold-coin-removebg-preview.png';
-coinImage.onload = imageLoaded;
-
-const monsterImage = new Image();
-monsterImage.src = 'https://i.postimg.cc/0MFypbtC/monster-removebg-preview.png';
-monsterImage.onload = imageLoaded;
-
-const powerupImage = new Image();
-powerupImage.src = 'https://i.postimg.cc/k2R3bf0L/star-removebg-preview.png';
-powerupImage.onload = imageLoaded;
-
-function imageLoaded() {
-    imagesLoaded++;
-    if (imagesLoaded === totalImages) {
-        init();
-    }
-}
+// Sound assets
+const soundAssets = {
+    collect: 'https://assets.mixkit.co/sfx/preview/mixkit-coin-win-notification-1992.mp3',
+    fireball: 'https://assets.mixkit.co/sfx/preview/mixkit-fireball-spell-1664.mp3',
+    freeze: 'https://assets.mixkit.co/sfx/preview/mixkit-magic-spell-hit-1682.mp3',
+    lightning: 'https://assets.mixkit.co/sfx/preview/mixkit-light-spell-hit-1681.mp3',
+    hit: 'https://assets.mixkit.co/sfx/preview/mixkit-player-jumping-into-water-1946.mp3',
+    powerup: 'https://assets.mixkit.co/sfx/preview/mixkit-bonus-earned-in-video-game-2058.mp3',
+    gameOver: 'https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3',
+    levelUp: 'https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3'
+};
 
 // Initialize game
 function init() {
@@ -107,9 +88,44 @@ function init() {
     if (isMobile) {
         document.getElementById('mobileControls').style.display = 'block';
         setupMobileControls();
+        
+        // Adjust canvas size for mobile
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        dragon.x = canvas.width / 2 - dragon.width / 2;
+        dragon.y = canvas.height - dragon.height - 20;
     }
     
+    // Load images
+    loadImages();
+    
+    // Load sounds
+    loadSounds();
+    
     // Event listeners
+    setupEventListeners();
+    
+    // Start game loop
+    requestAnimationFrame(gameLoop);
+}
+
+function loadImages() {
+    Object.entries(assets).forEach(([key, src]) => {
+        const img = new Image();
+        img.src = src;
+        assets[key] = img;
+    });
+}
+
+function loadSounds() {
+    Object.entries(soundAssets).forEach(([key, src]) => {
+        const sound = new Audio(src);
+        sound.volume = 0.3;
+        sounds[key] = sound;
+    });
+}
+
+function setupEventListeners() {
     document.getElementById('startButton').addEventListener('click', startGame);
     document.getElementById('restartButton').addEventListener('click', startGame);
     document.getElementById('quitButton').addEventListener('click', () => {
@@ -123,20 +139,26 @@ function init() {
         }
     });
     document.getElementById('dragonSelectButton').addEventListener('click', selectDragon);
-    document.getElementById('soundToggle').addEventListener('click', toggleSound);
     
     // Keyboard controls
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
     
-    // Start game loop
-    requestAnimationFrame(gameLoop);
+    // Window resize handler
+    window.addEventListener('resize', handleResize);
 }
 
-function toggleSound() {
-    soundEnabled = !soundEnabled;
-    this.textContent = soundEnabled ? "🔊 Sound On" : "🔇 Sound Off";
-    Howler.mute(!soundEnabled);
+function handleResize() {
+    if (isMobile) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Adjust dragon position
+        if (gameActive) {
+            dragon.x = Math.min(dragon.x, canvas.width - dragon.width);
+            dragon.y = Math.min(dragon.y, canvas.height - dragon.height);
+        }
+    }
 }
 
 function setupMobileControls() {
@@ -169,15 +191,23 @@ function keyDown(e) {
     
     switch(e.key) {
         case 'ArrowLeft':
+        case 'a':
+        case 'A':
             dragon.dx = -speed;
             break;
         case 'ArrowRight':
+        case 'd':
+        case 'D':
             dragon.dx = speed;
             break;
         case 'ArrowUp':
+        case 'w':
+        case 'W':
             dragon.dy = -speed;
             break;
         case 'ArrowDown':
+        case 's':
+        case 'S':
             dragon.dy = speed;
             break;
         case ' ':
@@ -189,15 +219,23 @@ function keyDown(e) {
 function keyUp(e) {
     switch(e.key) {
         case 'ArrowLeft':
+        case 'a':
+        case 'A':
             if (dragon.dx < 0) dragon.dx = 0;
             break;
         case 'ArrowRight':
+        case 'd':
+        case 'D':
             if (dragon.dx > 0) dragon.dx = 0;
             break;
         case 'ArrowUp':
+        case 'w':
+        case 'W':
             if (dragon.dy < 0) dragon.dy = 0;
             break;
         case 'ArrowDown':
+        case 's':
+        case 'S':
             if (dragon.dy > 0) dragon.dy = 0;
             break;
     }
@@ -213,8 +251,8 @@ function startGame() {
     bossActive = false;
     
     // Reset dragon
-    dragon.x = 400;
-    dragon.y = 500;
+    dragon.x = isMobile ? canvas.width / 2 - dragon.width / 2 : 400;
+    dragon.y = isMobile ? canvas.height - dragon.height - 20 : 500;
     dragon.dx = 0;
     dragon.dy = 0;
     dragon.speed = DRAGON_TYPES[currentDragon].speed;
@@ -227,11 +265,9 @@ function startGame() {
     boss = null;
     
     // Reset powerups
-    powerupsActive = {
-        speed_boost: false,
-        invincible: false,
-        magnet: false
-    };
+    powerupsActive.speed_boost = false;
+    powerupsActive.invincible = false;
+    powerupsActive.magnet = false;
     
     // Generate initial objects
     generateObjects();
@@ -242,9 +278,6 @@ function startGame() {
     
     // Update HUD
     updateHUD();
-    
-    // Play start sound
-    if (soundEnabled) sounds.levelup.play();
 }
 
 function selectDragon() {
@@ -255,12 +288,8 @@ function selectDragon() {
     document.getElementById('dragonDisplay').textContent = currentDragon;
     dragon.speed = DRAGON_TYPES[currentDragon].speed;
     
-    // Show dragon info
-    const dragonInfo = DRAGON_TYPES[currentDragon];
-    alert(`Selected: ${currentDragon} Dragon\nSpeed: ${dragonInfo.speed}\nAbility: ${dragonInfo.ability}\n${dragonInfo.description}`);
-    
-    // Play selection sound
-    if (soundEnabled) sounds.powerup.play();
+    // Play sound effect
+    sounds.powerup.play();
 }
 
 function generateObjects() {
@@ -272,7 +301,7 @@ function generateObjects() {
             y: Math.random() * (canvas.height - 150),
             width: 30,
             height: 30,
-            value: 10 + Math.floor(level / 2) * 5
+            value: 10 + Math.floor(level / 2)
         });
     }
     
@@ -327,7 +356,6 @@ function spawnBoss() {
         maxHealth: 10 * level,
         attackCooldown: 0
     };
-    if (soundEnabled) sounds.boss.play();
 }
 
 function useAbility() {
@@ -335,12 +363,14 @@ function useAbility() {
     
     abilityCooldown = Date.now() + DRAGON_TYPES[currentDragon].cooldown;
     updateAbilityBar();
-    if (soundEnabled) sounds.ability.play();
+    
+    // Play ability sound
+    sounds[DRAGON_TYPES[currentDragon].abilitySound].play();
     
     switch(currentDragon) {
         case "Fire":
             abilities.push({
-                x: dragon.x,
+                x: dragon.x + dragon.width/2 - 10,
                 y: dragon.y - dragon.height/2,
                 width: 20,
                 height: 20,
@@ -359,18 +389,15 @@ function useAbility() {
             break;
             
         case "Storm":
-            // Create 3 lightning strikes
-            for (let i = 0; i < 3; i++) {
-                abilities.push({
-                    x: dragon.x + (i - 1) * 50,
-                    y: dragon.y - dragon.height/2,
-                    width: 10,
-                    height: 30,
-                    lifetime: 30,
-                    damage: DRAGON_TYPES[currentDragon].damage,
-                    type: "lightning"
-                });
-            }
+            abilities.push({
+                x: dragon.x + dragon.width/2 - 5,
+                y: dragon.y - dragon.height/2,
+                width: 10,
+                height: 30,
+                lifetime: 30,
+                damage: DRAGON_TYPES[currentDragon].damage,
+                type: "lightning"
+            });
             break;
     }
 }
@@ -425,7 +452,7 @@ function update() {
             const dy = dragon.y + dragon.height/2 - (gem.y + gem.height/2);
             const distance = Math.sqrt(dx*dx + dy*dy);
             
-            if (distance > 0) {
+            if (distance > 0 && distance < 200) {
                 gem.x += dx / distance * 3;
                 gem.y += dy / distance * 3;
             }
@@ -448,7 +475,7 @@ function update() {
             gems.splice(i, 1);
             score += gem.value;
             updateHUD();
-            if (soundEnabled) sounds.gem.play();
+            sounds.collect.play();
         }
     }
     
@@ -460,11 +487,11 @@ function update() {
             
             if (powerup.type === "extra_life") {
                 lives++;
-                if (soundEnabled) sounds.levelup.play();
+                sounds.powerup.play();
             } else {
                 powerupsActive[powerup.type] = true;
                 powerupEndTime = Date.now() + 10000; // 10 seconds
-                if (soundEnabled) sounds.powerup.play();
+                sounds.powerup.play();
             }
             updateHUD();
         }
@@ -493,7 +520,7 @@ function update() {
         if (!powerupsActive.invincible && checkCollision(dragon, enemy)) {
             lives--;
             updateHUD();
-            if (soundEnabled) sounds.hit.play();
+            sounds.hit.play();
             
             if (lives <= 0) {
                 gameOver = true;
@@ -501,7 +528,7 @@ function update() {
                 document.getElementById('finalScore').textContent = score;
                 document.getElementById('finalLevel').textContent = level;
                 document.getElementById('gameOverScreen').style.display = 'flex';
-                if (soundEnabled) sounds.gameover.play();
+                sounds.gameOver.play();
             } else {
                 // Brief invincibility after hit
                 powerupsActive.invincible = true;
@@ -532,7 +559,7 @@ function update() {
                     abilities.splice(i, 1);
                     score += 20;
                     updateHUD();
-                    if (soundEnabled) sounds.hit.play();
+                    sounds.hit.play();
                     break;
                 }
             }
@@ -541,13 +568,13 @@ function update() {
             if (bossActive && checkCollision(ability, boss)) {
                 boss.health -= ability.damage;
                 abilities.splice(i, 1);
-                if (soundEnabled) sounds.hit.play();
+                sounds.hit.play();
                 
                 if (boss.health <= 0) {
                     bossActive = false;
                     score += 100 * level;
                     updateHUD();
-                    if (soundEnabled) sounds.levelup.play();
+                    sounds.levelUp.play();
                 }
             }
         }
@@ -565,20 +592,20 @@ function update() {
                     enemies.splice(j, 1);
                     score += 20;
                     updateHUD();
-                    if (soundEnabled) sounds.hit.play();
+                    sounds.hit.play();
                 }
             }
             
             // Check collision with boss
             if (bossActive && checkCollision(ability, boss)) {
                 boss.health -= ability.damage;
-                if (soundEnabled) sounds.hit.play();
+                sounds.hit.play();
                 
                 if (boss.health <= 0) {
                     bossActive = false;
                     score += 100 * level;
                     updateHUD();
-                    if (soundEnabled) sounds.levelup.play();
+                    sounds.levelUp.play();
                 }
             }
         }
@@ -612,7 +639,7 @@ function update() {
     if (gems.length === 0 && !bossActive) {
         level++;
         updateHUD();
-        if (soundEnabled) sounds.levelup.play();
+        sounds.levelUp.play();
         generateObjects();
     }
 }
@@ -635,59 +662,89 @@ function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     // Draw background
-    ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+    if (assets.bgImage.complete) {
+        ctx.drawImage(assets.bgImage, 0, 0, canvas.width, canvas.height);
+    } else {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
     
     if (gameActive) {
         // Draw gems
         gems.forEach(gem => {
-            ctx.drawImage(coinImage, gem.x, gem.y, gem.width, gem.height);
-            ctx.fillStyle = "gold";
-            ctx.font = "bold 12px Arial";
-            ctx.fillText(gem.value, gem.x + 8, gem.y + 20);
+            if (assets.coinImage.complete) {
+                ctx.drawImage(assets.coinImage, gem.x, gem.y, gem.width, gem.height);
+            } else {
+                ctx.fillStyle = '#ffcc00';
+                ctx.beginPath();
+                ctx.arc(
+                    gem.x + gem.width/2,
+                    gem.y + gem.height/2,
+                    gem.width/2,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+            }
         });
         
         // Draw powerups
         powerups.forEach(powerup => {
-            ctx.drawImage(powerupImage, powerup.x, powerup.y, powerup.width, powerup.height);
+            if (assets.powerupImage.complete) {
+                ctx.drawImage(assets.powerupImage, powerup.x, powerup.y, powerup.width, powerup.height);
+            } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.moveTo(powerup.x + powerup.width/2, powerup.y);
+                ctx.lineTo(powerup.x + powerup.width, powerup.y + powerup.height/3);
+                ctx.lineTo(powerup.x + powerup.width*0.8, powerup.y + powerup.height);
+                ctx.lineTo(powerup.x + powerup.width*0.2, powerup.y + powerup.height);
+                ctx.lineTo(powerup.x, powerup.y + powerup.height/3);
+                ctx.closePath();
+                ctx.fill();
+            }
             
-            // Draw icon for powerup type
-            ctx.fillStyle = "white";
-            ctx.font = "bold 16px Arial";
-            
+            // Draw icon for extra life
             if (powerup.type === "extra_life") {
-                ctx.fillText("+1", powerup.x + 8, powerup.y + 20);
-            } else if (powerup.type === "speed_boost") {
-                ctx.fillText("⚡", powerup.x + 10, powerup.y + 22);
-            } else if (powerup.type === "invincible") {
-                ctx.fillText("🛡", powerup.x + 8, powerup.y + 22);
-            } else if (powerup.type === "magnet") {
-                ctx.fillText("🧲", powerup.x + 8, powerup.y + 22);
+                ctx.fillStyle = "red";
+                ctx.font = "bold 20px Arial";
+                ctx.fillText("+1", powerup.x + 5, powerup.y + 20);
             }
         });
         
         // Draw enemies
         enemies.forEach(enemy => {
-            if (enemy.frozen) {
-                // Draw frozen effect
-                ctx.save();
-                ctx.globalAlpha = 0.7;
-                ctx.drawImage(monsterImage, enemy.x, enemy.y, enemy.width, enemy.height);
-                ctx.restore();
-                
-                // Ice overlay
-                ctx.fillStyle = "rgba(100, 200, 255, 0.4)";
-                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            if (assets.monsterImage.complete) {
+                if (enemy.frozen) {
+                    // Draw frozen effect
+                    ctx.save();
+                    ctx.globalAlpha = 0.7;
+                    ctx.drawImage(assets.monsterImage, enemy.x, enemy.y, enemy.width, enemy.height);
+                    ctx.restore();
+                    
+                    // Ice overlay
+                    ctx.fillStyle = "rgba(100, 100, 255, 0.3)";
+                    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+                } else {
+                    ctx.drawImage(assets.monsterImage, enemy.x, enemy.y, enemy.width, enemy.height);
+                }
             } else {
-                ctx.drawImage(monsterImage, enemy.x, enemy.y, enemy.width, enemy.height);
+                ctx.fillStyle = enemy.frozen ? "#6666ff" : "#ff0000";
+                ctx.beginPath();
+                ctx.arc(
+                    enemy.x + enemy.width/2,
+                    enemy.y + enemy.height/2,
+                    enemy.width/2,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
             }
         });
         
         // Draw abilities
         abilities.forEach(ability => {
             if (ability.type === "fireball") {
-                // Fireball glow
-                ctx.shadowColor = "#ff9933";
-                ctx.shadowBlur = 10;
                 ctx.fillStyle = "#ff9933";
                 ctx.beginPath();
                 ctx.arc(
@@ -698,9 +755,8 @@ function render() {
                     Math.PI * 2
                 );
                 ctx.fill();
-                ctx.shadowBlur = 0;
                 
-                // Fireball core
+                // Fire effect
                 ctx.fillStyle = "#ff3333";
                 ctx.beginPath();
                 ctx.arc(
@@ -712,17 +768,8 @@ function render() {
                 );
                 ctx.fill();
             } else if (ability.type === "lightning") {
-                // Lightning effect
                 ctx.strokeStyle = "#aa33ff";
                 ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(ability.x + ability.width/2, ability.y);
-                ctx.lineTo(ability.x + ability.width/2, ability.y + ability.height);
-                ctx.stroke();
-                
-                // Lightning glow
-                ctx.strokeStyle = "white";
-                ctx.lineWidth = 1;
                 ctx.beginPath();
                 ctx.moveTo(ability.x + ability.width/2, ability.y);
                 ctx.lineTo(ability.x + ability.width/2, ability.y + ability.height);
@@ -732,30 +779,38 @@ function render() {
         
         // Draw boss
         if (bossActive) {
-            // Boss shadow
-            ctx.shadowColor = "rgba(255, 0, 0, 0.7)";
-            ctx.shadowBlur = 20;
-            ctx.drawImage(monsterImage, boss.x, boss.y, boss.width, boss.height);
-            ctx.shadowBlur = 0;
+            if (assets.monsterImage.complete) {
+                ctx.drawImage(assets.monsterImage, boss.x, boss.y, boss.width, boss.height);
+            } else {
+                ctx.fillStyle = "#ff0000";
+                ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+            }
             
             // Boss health bar background
-            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-            ctx.fillRect(boss.x, boss.y - 25, boss.width, 15);
+            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            ctx.fillRect(boss.x + 10, boss.y - 20, boss.width - 20, 10);
             
             // Boss health bar
-            const healthWidth = boss.width * (boss.health / boss.maxHealth);
-            ctx.fillStyle = healthWidth > boss.width/2 ? "#00ff00" : 
-                          healthWidth > boss.width/4 ? "#ffff00" : "#ff0000";
-            ctx.fillRect(boss.x, boss.y - 25, healthWidth, 15);
-            
-            // Boss health text
-            ctx.fillStyle = "white";
-            ctx.font = "bold 12px Arial";
-            ctx.fillText(`${boss.health}/${boss.maxHealth}`, boss.x + boss.width/2 - 20, boss.y - 12);
+            const healthWidth = (boss.width - 20) * (boss.health / boss.maxHealth);
+            ctx.fillStyle = "#00ff00";
+            ctx.fillRect(boss.x + 10, boss.y - 20, healthWidth, 10);
         }
         
         // Draw dragon
-        ctx.drawImage(dragonImage, dragon.x, dragon.y, dragon.width, dragon.height);
+        if (assets.dragonImage.complete) {
+            ctx.drawImage(assets.dragonImage, dragon.x, dragon.y, dragon.width, dragon.height);
+        } else {
+            ctx.fillStyle = DRAGON_TYPES[currentDragon].color;
+            ctx.beginPath();
+            ctx.arc(
+                dragon.x + dragon.width/2,
+                dragon.y + dragon.height/2,
+                dragon.width/2,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+        }
         
         // Flash effect when invincible
         if (powerupsActive.invincible && Math.floor(Date.now() / 100) % 2 === 0) {
@@ -773,3 +828,6 @@ function render() {
         }
     }
 }
+
+// Start the game when all assets are loaded
+window.addEventListener('load', init);
