@@ -3,49 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon Adventure</title>
+    <title>Audio Player with Howler.js</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="gameContainer">
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
-        
-        <div id="hud">
-            <div>Score: <span id="scoreDisplay">0</span></div>
-            <div>Level: <span id="levelDisplay">1</span></div>
-            <div>Lives: <span id="livesDisplay">3</span></div>
-            <div>Dragon: <span id="dragonDisplay">Fire</span></div>
+    <div class="audio-player">
+        <h1>Audio Player</h1>
+        <div class="controls">
+            <button id="playBtn">Play</button>
+            <button id="pauseBtn">Pause</button>
+            <button id="stopBtn">Stop</button>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5">
         </div>
-        
-        <div id="abilityIndicator">
-            <div id="abilityBar"></div>
-        </div>
-        <div id="abilityText">Ability Ready (Press Space)</div>
-        
-        <div id="menuScreen">
-            <h1>Dragon Adventure</h1>
-            <button class="button" id="startButton">Start Game</button>
-            <button class="button" id="dragonSelectButton">Select Dragon</button>
-            <button class="button" id="quitButton">Quit</button>
-        </div>
-        
-        <div id="gameOverScreen">
-            <h1>Game Over</h1>
-            <h2>Final Score: <span id="finalScore">0</span></h2>
-            <h2>Level Reached: <span id="finalLevel">1</span></h2>
-            <button class="button" id="restartButton">Restart</button>
-            <button class="button" id="quitButton2">Quit</button>
-        </div>
-        
-        <div class="mobile-controls" id="mobileControls">
-            <div class="mobile-btn" id="upBtn">↑</div>
-            <div class="mobile-btn" id="downBtn">↓</div>
-            <div class="mobile-btn" id="leftBtn">←</div>
-            <div class="mobile-btn" id="rightBtn">→</div>
-            <div class="mobile-btn" id="abilityBtn">A</div>
+        <div class="playlist">
+            <h2>Playlist</h2>
+            <ul id="songList">
+                <li data-src="song1.mp3">Song 1</li>
+                <li data-src="song2.mp3">Song 2</li>
+                <li data-src="song3.mp3">Song 3</li>
+            </ul>
         </div>
     </div>
 
-    <script src="game.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
