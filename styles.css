@@ -53,6 +53,7 @@ h1 {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     font-family: 'Impact', sans-serif;
     letter-spacing: 2px;
+    animation: pulse 2s infinite;
 }
 
 h2 {
@@ -213,4 +214,5 @@ h2 {
 @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
-    100% { transform: scale(
+    100% { transform: scale(1); }
+}
