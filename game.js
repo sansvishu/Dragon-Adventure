@@ -1,184 +1,234 @@
+// Get the canvas element and context
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Set canvas size dynamically
-function resizeCanvas() {
-    canvas.width = window.innerWidth * 0.8;
-    canvas.height = window.innerHeight * 0.7;
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-
-// Load images
-const dragonImg = new Image();
-dragonImg.src = "https://i.postimg.cc/K3TvQxwh/dragon-removebg-preview.png";
-
-const coinImg = new Image();
-coinImg.src = "https://i.postimg.cc/0MbNMpCQ/gold-coin-removebg-preview.png";
-
-const monsterImg = new Image();
-monsterImg.src = "https://i.postimg.cc/0MFypbtC/monster-removebg-preview.png";
+const WIDTH = 800;
+const HEIGHT = 600;
+canvas.width = WIDTH;
+canvas.height = HEIGHT;
 
 // Game variables
+let dragon;
+let gems = [];
+let powerUps = [];
+let monsters = [];
 let score = 0;
 let level = 1;
-let lives = 3;
 let gameOver = false;
-let coinsRequiredForNextLevel = 5;
-let enemiesSpeed = 1.5;
-let enemyCount = 3;
-let coins = [];
-let enemies = [];
+let levelClear = false;
 
-// Sound effects
-const coinSound = new Audio("https://www.fesliyanstudios.com/play-mp3/2");
-const hitSound = new Audio("https://www.fesliyanstudios.com/play-mp3/7");
+// Image assets
+const dragonImg = new Image();
+dragonImg.src = "https://i.postimg.cc/K3TvQxwh/dragon-removebg-preview.png";
+const goldCoinImg = new Image();
+goldCoinImg.src = "https://i.postimg.cc/0MbNMpCQ/gold-coin-removebg-preview.png";
+const monsterImg = new Image();
+monsterImg.src = "https://postimg.cc/0MFypbtC/monster-removebg-preview.png";
+const powerUpImg = new Image();
+powerUpImg.src = "https://postimg.cc/k2R3bf0L/star-removebg-preview.png";
 
-// Dragon object
+// Backgrounds
+const backgrounds = [
+    "https://i.postimg.cc/C51pVZyt/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo-1.png",
+    "https://i.postimg.cc/Dy7kT6Kn/level-background2.png",
+    "https://i.postimg.cc/3RJXzPS6/level-background3.png"
+];
+
+// Dragon Class
 class Dragon {
     constructor() {
-        this.x = canvas.width / 2;
-        this.y = canvas.height - 80;
+        this.x = WIDTH / 2;
+        this.y = HEIGHT - 80;
         this.width = 50;
         this.height = 50;
+        this.image = dragonImg;
         this.speed = 5;
     }
 
-    move() {
-        if (keys["ArrowLeft"] && this.x > 0) this.x -= this.speed;
-        if (keys["ArrowRight"] && this.x < canvas.width - this.width) this.x += this.speed;
-        if (keys["ArrowUp"] && this.y > 0) this.y -= this.speed;
-        if (keys["ArrowDown"] && this.y < canvas.height - this.height) this.y += this.speed;
+    move(direction) {
+        switch (direction) {
+            case "left":
+                if (this.x > 0) this.x -= this.speed;
+                break;
+            case "right":
+                if (this.x + this.width < WIDTH) this.x += this.speed;
+                break;
+            case "up":
+                if (this.y > 0) this.y -= this.speed;
+                break;
+            case "down":
+                if (this.y + this.height < HEIGHT) this.y += this.speed;
+                break;
+        }
     }
 
     draw() {
-        ctx.drawImage(dragonImg, this.x, this.y, this.width, this.height);
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
 }
 
-// Coin object
-class Coin {
+// Gem Class (Gold Coin)
+class Gem {
     constructor() {
-        this.x = Math.random() * (canvas.width - 20);
-        this.y = Math.random() * (canvas.height - 100);
-        this.width = 20;
-        this.height = 20;
+        this.x = Math.random() * WIDTH;
+        this.y = Math.random() * (HEIGHT - 150);
+        this.width = 25;
+        this.height = 25;
+        this.image = goldCoinImg;
     }
 
     draw() {
-        ctx.drawImage(coinImg, this.x, this.y, this.width, this.height);
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
 }
 
-// Enemy object
-class Enemy {
+// PowerUp Class
+class PowerUp {
     constructor() {
-        this.x = Math.random() * (canvas.width - 30);
-        this.y = Math.random() * (canvas.height / 2);
+        this.x = Math.random() * WIDTH;
+        this.y = Math.random() * (HEIGHT - 150);
         this.width = 30;
         this.height = 30;
-        this.speed = enemiesSpeed;
+        this.image = powerUpImg;
     }
 
-    move() {
+    draw() {
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+    }
+}
+
+// Monster Class
+class Monster {
+    constructor() {
+        this.x = Math.random() * WIDTH;
+        this.y = -30;
+        this.width = 50;
+        this.height = 50;
+        this.image = monsterImg;
+        this.speed = Math.random() * 2 + 1; // Random speed
+    }
+
+    update() {
         this.y += this.speed;
-        if (this.y > canvas.height) {
-            this.y = 0;
-            this.x = Math.random() * (canvas.width - this.width);
+        if (this.y > HEIGHT) {
+            this.y = -30;
+            this.x = Math.random() * WIDTH;
         }
     }
 
     draw() {
-        ctx.drawImage(monsterImg, this.x, this.y, this.width, this.height);
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
 }
 
-// Initialize objects
-let dragon = new Dragon();
-let keys = {};
+// Level Clear Screen
+function showLevelClear() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-// Key event listeners
-window.addEventListener("keydown", (e) => (keys[e.key] = true));
-window.addEventListener("keyup", (e) => (keys[e.key] = false));
+    ctx.fillStyle = "white";
+    ctx.font = "36px Arial";
+    ctx.fillText(`Level ${level} Clear!`, WIDTH / 2 - 120, HEIGHT / 2 - 50);
+    ctx.fillText(`Score: ${score}`, WIDTH / 2 - 60, HEIGHT / 2);
 
-// Collision detection
-function isColliding(a, b) {
-    return (
-        a.x < b.x + b.width &&
-        a.x + a.width > b.x &&
-        a.y < b.y + b.height &&
-        a.y + a.height > b.y
-    );
+    // Next Level Button
+    const nextButton = document.createElement("button");
+    nextButton.innerText = "Next Level";
+    nextButton.style.position = "absolute";
+    nextButton.style.left = "50%";
+    nextButton.style.top = "50%";
+    nextButton.style.transform = "translate(-50%, -50%)";
+    nextButton.style.fontSize = "20px";
+    nextButton.onclick = () => {
+        levelClear = false;
+        nextLevel();
+        document.body.removeChild(nextButton);
+    };
+    document.body.appendChild(nextButton);
 }
 
-// Game update function
-function update() {
-    if (!gameOver) {
-        dragon.move();
+// Start Next Level
+function nextLevel() {
+    level++;
+    monsters = [];
+    gems = [];
+    powerUps = [];
+    gameOver = false;
 
-        // Collect coins
-        for (let i = 0; i < coins.length; i++) {
-            if (isColliding(dragon, coins[i])) {
-                coins.splice(i, 1);
-                score += 10;
-                coinSound.play();
-                if (coins.length === 0) {
-                    level += 1;
-                    resetLevel();
-                    showNextLevelScreen();
-                }
-            }
-        }
-
-        // Enemy collision
-        for (let enemy of enemies) {
-            enemy.move();
-            if (isColliding(dragon, enemy)) {
-                hitSound.play();
-                lives -= 1;
-                if (lives <= 0) {
-                    gameOver = true;
-                    showGameOverScreen();
-                }
-            }
-        }
+    // Increase difficulty (example: more monsters, etc.)
+    for (let i = 0; i < level + 2; i++) {
+        monsters.push(new Monster());
     }
+
+    for (let i = 0; i < level + 3; i++) {
+        gems.push(new Gem());
+    }
+
+    // Change background based on level
+    document.body.style.backgroundImage = `url(${backgrounds[level % backgrounds.length]})`;
+
+    // Reinitialize the dragon
+    dragon = new Dragon();
+    gameLoop();
 }
 
-// Draw the game
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    dragon.draw();
-    coins.forEach((coin) => coin.draw());
-    enemies.forEach((enemy) => enemy.draw());
+// Initialize game
+function init() {
+    dragon = new Dragon();
+    gems.push(new Gem());
+    monsters.push(new Monster());
+    gameLoop();
 }
 
 // Game loop
 function gameLoop() {
-    update();
-    draw();
+    if (gameOver) return;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+    // Draw game objects
+    dragon.draw();
+    gems.forEach((gem) => gem.draw());
+    monsters.forEach((monster) => {
+        monster.update();
+        monster.draw();
+    });
+
+    // Collision detection (Dragon and Gem)
+    gems.forEach((gem, index) => {
+        if (collision(dragon, gem)) {
+            score += 10;
+            gems.splice(index, 1); // Remove the gem
+            gems.push(new Gem()); // Add new gem
+        }
+    });
+
+    // Collision detection (Dragon and Monster)
+    monsters.forEach((monster, index) => {
+        if (collision(dragon, monster)) {
+            gameOver = true;
+            alert("Game Over!");
+        }
+    });
+
+    // Check if all gems are collected
+    if (gems.length === 0) {
+        levelClear = true;
+        showLevelClear();
+    }
+
+    // Request the next frame
     requestAnimationFrame(gameLoop);
 }
-gameLoop();
 
-// Restart the game
-function restartGame() {
-    lives = 3;
-    score = 0;
-    level = 1;
-    gameOver = false;
-    resetLevel();
-    document.getElementById("gameOverScreen").classList.add("hidden");
+// Collision detection function
+function collision(obj1, obj2) {
+    return obj1.x < obj2.x + obj2.width &&
+           obj1.x + obj1.width > obj2.x &&
+           obj1.y < obj2.y + obj2.height &&
+           obj1.y + obj1.height > obj2.y;
 }
 
-// Go to next level
-function nextLevel() {
-    document.getElementById("nextLevelScreen").classList.add("hidden");
-    resetLevel();
-}
-
-// Reset the level
-function resetLevel() {
-    coins = Array.from({ length: coinsRequiredForNextLevel }, () => new Coin());
-    enemies = Array.from({ length: enemyCount }, () => new Enemy());
-}
+// Start the game
+init();
