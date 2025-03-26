@@ -5,22 +5,21 @@ body {
     background-color: #000;
     font-family: 'Arial', sans-serif;
     touch-action: manipulation;
+    user-select: none;
 }
 
 #gameContainer {
     position: relative;
     width: 800px;
     height: 600px;
-    margin: 20px auto;
+    margin: 0 auto;
     overflow: hidden;
-    border: 4px solid #444;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    background-color: #000;
 }
 
 #gameCanvas {
-    background-color: #111;
     display: block;
+    background-color: #000;
 }
 
 #menuScreen, #gameOverScreen {
@@ -44,88 +43,68 @@ body {
 }
 
 h1 {
-    font-size: 3.5rem;
-    margin-bottom: 30px;
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
     color: #f0f0f0;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    background: linear-gradient(to right, #ff3333, #33ff33, #3333ff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: rainbow 5s linear infinite;
 }
 
 h2 {
-    font-size: 2rem;
-    margin-bottom: 20px;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-@keyframes rainbow {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
-}
-
 .button {
-    width: 220px;
-    height: 70px;
-    margin: 15px;
-    background: linear-gradient(145deg, #4444ff, #3333cc);
+    width: 200px;
+    height: 60px;
+    margin: 10px;
+    background-color: #3333ff;
     color: white;
     border: none;
-    border-radius: 12px;
-    font-size: 1.5rem;
+    border-radius: 10px;
+    font-size: 1.25rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     font-weight: bold;
 }
 
 .button:hover {
-    background: linear-gradient(145deg, #5555ff, #4444dd);
+    background-color: #5555ff;
     transform: scale(1.05);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-}
-
-.button:active {
-    transform: scale(0.98);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 #hud {
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: 10px;
+    left: 10px;
     color: white;
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     z-index: 5;
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 12px 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px 15px;
     border-radius: 10px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-#hud span {
-    font-weight: bold;
-    color: #ffcc00;
+    gap: 5px;
 }
 
 #abilityIndicator {
     position: absolute;
-    bottom: 15px;
-    left: 15px;
-    width: 250px;
-    height: 25px;
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 12px;
+    bottom: 10px;
+    left: 10px;
+    width: 200px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
     overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 #abilityBar {
@@ -134,60 +113,81 @@ h2 {
     background: linear-gradient(90deg, #33ff33, #00cc00);
     transform-origin: left;
     transform: scaleX(0);
-    transition: transform 0.1s;
+    transition: transform 0.1s linear;
 }
 
 #abilityText {
     position: absolute;
-    bottom: 50px;
-    left: 15px;
+    bottom: 35px;
+    left: 10px;
     color: white;
-    font-size: 1.1rem;
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 8px 12px;
-    border-radius: 8px;
+    font-size: 0.9rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    white-space: nowrap;
 }
 
 .mobile-controls {
     position: absolute;
-    bottom: 30px;
-    right: 30px;
+    bottom: 20px;
+    right: 20px;
     display: none;
+    z-index: 5;
 }
 
 .mobile-btn {
-    width: 70px;
-    height: 70px;
-    background-color: rgba(0, 0, 0, 0.6);
+    width: 60px;
+    height: 60px;
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 50%;
     position: absolute;
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     user-select: none;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    transition: transform 0.1s;
+    cursor: pointer;
+    touch-action: manipulation;
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-.mobile-btn:active {
-    transform: scale(0.9);
-}
-
-#upBtn { bottom: 90px; right: 90px; }
-#downBtn { bottom: 0; right: 90px; }
-#leftBtn { bottom: 45px; right: 180px; }
-#rightBtn { bottom: 45px; right: 0; }
+#upBtn { bottom: 70px; right: 70px; }
+#downBtn { bottom: 0; right: 70px; }
+#leftBtn { bottom: 35px; right: 140px; }
+#rightBtn { bottom: 35px; right: 0; }
 #abilityBtn { 
-    bottom: 90px; right: 180px; 
-    background: linear-gradient(145deg, rgba(255, 50, 50, 0.8), rgba(200, 30, 30, 0.8));
+    bottom: 70px; right: 140px; 
+    background-color: rgba(255, 50, 50, 0.7);
 }
 
-#soundToggle {
-    position: absolute;
-    top: 20px
+/* Responsive adjustments */
+@media (max-width: 850px) {
+    #gameContainer {
+        width: 100%;
+        height: 100vh;
+    }
+    
+    #gameCanvas {
+        width: 100%;
+        height: 100%;
+    }
+    
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .button {
+        width: 160px;
+        height: 50px;
+        font-size: 1rem;
+    }
+    
+    #hud {
+        font-size: 1rem;
+    }
+}
