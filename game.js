@@ -26,6 +26,23 @@ const DRAGON_TYPES = {
     }
 };
 
+// Sound Effects
+const sounds = {
+    bgMusic: new Audio("https://energetic-chiptune-video-game-music-platformer-8-bit-318348 (1).mp3"),
+    coinSound: new Audio("https://mixkit-winning-a-coin-video-game-2069.wav"),
+    loseSound: new Audio("https://mixkit-player-losing-or-failing-2042.wav"),
+    hitSound: new Audio("https://github.com/yourusername/game-sounds/raw/main/hit-enemy.mp3"),
+    levelClearSound: new Audio("https://github.com/yourusername/game-sounds/raw/main/level-clear.mp3"),
+    bonusSound: new Audio("https://mixkit-bonus-earned-in-video-game-2058.wav"),
+    fireSound: new Audio("https://mixkit-retro-arcade-casino-notification-211.wav"),
+    freezeSound: new Audio("https://mixkit.co/sfx/preview/mixkit-ice-shatter-1251.mp3"),
+    lightningSound: new Audio("https://mixkit.co/sfx/preview/mixkit-electronic-retro-block-hit-2185.mp3")
+};
+
+// Configure sounds
+sounds.bgMusic.loop = true;
+sounds.bgMusic.volume = 0.5;
+
 // Game Variables
 let canvas, ctx;
 let gameActive = false;
@@ -67,8 +84,21 @@ const assets = {
     coin: 'https://i.postimg.cc/0MbNMpCQ/gold-coin-removebg-preview.png',
     monster: 'https://i.postimg.cc/0MFypbtC/monster-removebg-preview.png',
     powerup: 'https://i.postimg.cc/k2R3bf0L/star-removebg-preview.png',
-    boss: 'https://i.postimg.cc/0MFypbtC/monster-removebg-preview.png' // Using monster as boss for now
+    boss: 'https://i.postimg.cc/0MFypbtC/monster-removebg-preview.png'
 };
+
+// Sound functions
+function playSound(soundName, volume = 1.0) {
+    const sound = sounds[soundName].cloneNode();
+    sound.volume = volume;
+    sound.play().catch(e => console.log("Sound playback prevented:", e));
+    return sound;
+}
+
+function stopSound(soundName) {
+    sounds[soundName].pause();
+    sounds[soundName].currentTime = 0;
+}
 
 // Load images
 function loadImage(src) {
@@ -138,6 +168,7 @@ async function init() {
         }
     });
     document.getElementById('dragonSelectButton').addEventListener('click', selectDragon);
+    document.getElementById('muteButton').addEventListener('click', toggleMute);
     
     // Keyboard controls
     window.addEventListener('keydown', keyDown);
@@ -146,6 +177,18 @@ async function init() {
     // Start game loop
     lastTime = performance.now();
     requestAnimationFrame(gameLoop);
+}
+
+function toggleMute() {
+    const muteButton = document.getElementById('muteButton');
+    const isMuted = sounds.bgMusic.muted;
+    
+    // Toggle all sounds
+    Object.values(sounds).forEach(sound => {
+        sound.muted = !isMuted;
+    });
+    
+    muteButton.textContent = isMuted ? "Mute" : "Unmute";
 }
 
 function setupMobileControls() {
@@ -245,10 +288,12 @@ function togglePause() {
     gameActive = !gameActive;
     if (gameActive) {
         document.getElementById('menuScreen').style.display = 'none';
-        lastTime = performance.now(); // Reset timing for smooth animation
+        sounds.bgMusic.play();
+        lastTime = performance.now();
     } else {
         document.getElementById('menuScreen').style.display = 'flex';
         document.querySelector('#menuScreen h1').textContent = 'Game Paused';
+        sounds.bgMusic.pause();
     }
 }
 
@@ -283,6 +328,9 @@ function startGame() {
     // Hide menus
     document.getElementById('menuScreen').style.display = 'none';
     document.getElementById('gameOverScreen').style.display = 'none';
+    
+    // Play background music
+    playSound('bgMusic');
     
     // Update HUD
     updateHUD();
@@ -386,7 +434,7 @@ function useAbility() {
     
     switch(currentDragon) {
         case "Fire":
-            // Create fireball
+            playSound('fireSound');
             abilities.push({
                 x: dragon.x + dragon.width/2 - 10,
                 y: dragon.y - 10,
@@ -399,13 +447,12 @@ function useAbility() {
             break;
             
         case "Ice":
-            // Freeze all enemies
+            playSound('freezeSound');
             enemies.forEach(enemy => {
                 enemy.frozen = true;
                 enemy.frozenTime = Date.now() + DRAGON_TYPES[currentDragon].duration;
             });
             
-            // Create ice effect particles
             for (let i = 0; i < 50; i++) {
                 particles.push({
                     x: dragon.x + dragon.width/2,
@@ -420,7 +467,7 @@ function useAbility() {
             break;
             
         case "Storm":
-            // Create multiple lightning strikes
+            playSound('lightningSound');
             for (let i = 0; i < 3; i++) {
                 abilities.push({
                     x: dragon.x + dragon.width/2 - 5,
@@ -474,32 +521,27 @@ function gameLoop(timestamp) {
 }
 
 function update(deltaTime) {
-    // Normalize for frame rate
-    const deltaFactor = deltaTime / 16.67; // Normalize to 60fps
+    const deltaFactor = deltaTime / 16.67;
     
-    // Update dragon position
     dragon.x += dragon.dx * deltaFactor;
     dragon.y += dragon.dy * deltaFactor;
     
-    // Keep dragon in bounds
     dragon.x = Math.max(0, Math.min(canvas.width - dragon.width, dragon.x));
     dragon.y = Math.max(0, Math.min(canvas.height - dragon.height, dragon.y));
     
-    // Magnet powerup effect
     if (powerupsActive.magnet) {
         gems.forEach(gem => {
             const dx = dragon.x + dragon.width/2 - (gem.x + gem.width/2);
             const dy = dragon.y + dragon.height/2 - (gem.y + gem.height/2);
             const distance = Math.sqrt(dx*dx + dy*dy);
             
-            if (distance > 0 && distance < 200) { // Only attract within 200px
+            if (distance > 0 && distance < 200) {
                 gem.x += dx / distance * 3 * deltaFactor;
                 gem.y += dy / distance * 3 * deltaFactor;
             }
         });
     }
     
-    // Check powerup expiration
     if (powerupsActive.speed_boost || powerupsActive.invincible || powerupsActive.magnet) {
         if (Date.now() > powerupEndTime) {
             powerupsActive.speed_boost = false;
@@ -508,20 +550,18 @@ function update(deltaTime) {
         }
     }
     
-    // Update gems rotation
     gems.forEach(gem => {
         gem.rotation += gem.rotationSpeed * deltaFactor;
     });
     
-    // Check gem collisions
     for (let i = gems.length - 1; i >= 0; i--) {
         const gem = gems[i];
         if (checkCollision(dragon, gem)) {
             gems.splice(i, 1);
             score += 10;
+            playSound('coinSound');
             updateHUD();
             
-            // Create particles for collection effect
             for (let j = 0; j < 10; j++) {
                 particles.push({
                     x: gem.x + gem.width/2,
@@ -536,20 +576,18 @@ function update(deltaTime) {
         }
     }
     
-    // Update powerups rotation
     powerups.forEach(powerup => {
         powerup.rotation += powerup.rotationSpeed * deltaFactor;
     });
     
-    // Check powerup collisions
     for (let i = powerups.length - 1; i >= 0; i--) {
         const powerup = powerups[i];
         if (checkCollision(dragon, powerup)) {
             powerups.splice(i, 1);
+            playSound('bonusSound');
             
             if (powerup.type === "extra_life") {
                 lives++;
-                // Create heart particles
                 for (let j = 0; j < 15; j++) {
                     particles.push({
                         x: powerup.x + powerup.width/2,
@@ -563,9 +601,8 @@ function update(deltaTime) {
                 }
             } else {
                 powerupsActive[powerup.type] = true;
-                powerupEndTime = Date.now() + 10000; // 10 seconds
+                powerupEndTime = Date.now() + 10000;
                 
-                // Create star particles
                 for (let j = 0; j < 20; j++) {
                     particles.push({
                         x: powerup.x + powerup.width/2,
@@ -582,11 +619,9 @@ function update(deltaTime) {
         }
     }
     
-    // Update enemies
     for (let i = enemies.length - 1; i >= 0; i--) {
         const enemy = enemies[i];
         
-        // Skip if frozen
         if (enemy.frozen && Date.now() < enemy.frozenTime) {
             continue;
         } else if (enemy.frozen) {
@@ -595,28 +630,27 @@ function update(deltaTime) {
         
         enemy.y += enemy.speed * deltaFactor;
         
-        // Wrap around if off screen
         if (enemy.y > canvas.height) {
             enemy.y = Math.random() * -100 - 40;
             enemy.x = Math.random() * (canvas.width - enemy.width);
         }
         
-        // Check collision with dragon
         if (!powerupsActive.invincible && checkCollision(dragon, enemy)) {
             lives--;
+            playSound('hitSound');
             updateHUD();
             
-            // Create explosion effect
             createExplosion(enemy.x + enemy.width/2, enemy.y + enemy.height/2);
             
             if (lives <= 0) {
                 gameOver = true;
                 gameActive = false;
+                playSound('loseSound');
+                stopSound('bgMusic');
                 document.getElementById('finalScore').textContent = score;
                 document.getElementById('finalLevel').textContent = level;
                 document.getElementById('gameOverScreen').style.display = 'flex';
             } else {
-                // Brief invincibility after hit
                 powerupsActive.invincible = true;
                 powerupEndTime = Date.now() + 2000;
             }
@@ -625,28 +659,23 @@ function update(deltaTime) {
         }
     }
     
-    // Update abilities
     for (let i = abilities.length - 1; i >= 0; i--) {
         const ability = abilities[i];
         
         if (ability.type === "fireball") {
             ability.y -= ability.speed * deltaFactor;
             
-            // Check if off screen
             if (ability.y + ability.height < 0) {
                 abilities.splice(i, 1);
                 continue;
             }
             
-            // Check collision with enemies
             for (let j = enemies.length - 1; j >= 0; j--) {
                 if (checkCollision(ability, enemies[j])) {
                     enemies[j].health -= ability.damage;
                     
                     if (enemies[j].health <= 0) {
-                        // Create explosion effect
                         createExplosion(enemies[j].x + enemies[j].width/2, enemies[j].y + enemies[j].height/2);
-                        
                         enemies.splice(j, 1);
                         score += 20;
                     }
@@ -657,16 +686,13 @@ function update(deltaTime) {
                 }
             }
             
-            // Check collision with boss
             if (bossActive && checkCollision(ability, boss)) {
                 boss.health -= ability.damage;
                 abilities.splice(i, 1);
                 
-                // Create hit effect
                 createExplosion(ability.x + ability.width/2, ability.y + ability.height/2, 10);
                 
                 if (boss.health <= 0) {
-                    // Big explosion for boss
                     for (let k = 0; k < 100; k++) {
                         particles.push({
                             x: boss.x + boss.width/2,
@@ -693,15 +719,12 @@ function update(deltaTime) {
                 continue;
             }
             
-            // Check collision with enemies
             for (let j = enemies.length - 1; j >= 0; j--) {
                 if (checkCollision(ability, enemies[j])) {
                     enemies[j].health -= ability.damage;
                     
                     if (enemies[j].health <= 0) {
-                        // Create explosion effect
                         createExplosion(enemies[j].x + enemies[j].width/2, enemies[j].y + enemies[j].height/2);
-                        
                         enemies.splice(j, 1);
                         score += 20;
                         updateHUD();
@@ -709,12 +732,10 @@ function update(deltaTime) {
                 }
             }
             
-            // Check collision with boss
             if (bossActive && checkCollision(ability, boss)) {
                 boss.health -= ability.damage;
                 
                 if (boss.health <= 0) {
-                    // Big explosion for boss
                     for (let k = 0; k < 100; k++) {
                         particles.push({
                             x: boss.x + boss.width/2,
@@ -735,22 +756,18 @@ function update(deltaTime) {
         }
     }
     
-    // Update boss
     if (bossActive) {
         boss.x += boss.speed * boss.direction * deltaFactor;
         
-        // Change direction at edges
         if (boss.x + boss.width > canvas.width || boss.x < 0) {
             boss.direction *= -1;
         }
         
-        // Boss phase changes
-        if (Date.now() - boss.lastPhaseChange > 10000) { // Every 10 seconds
+        if (Date.now() - boss.lastPhaseChange > 10000) {
             boss.lastPhaseChange = Date.now();
             boss.phase++;
             boss.speed += 0.5;
             
-            // Create phase change effect
             for (let i = 0; i < 50; i++) {
                 particles.push({
                     x: boss.x + boss.width/2,
@@ -764,11 +781,9 @@ function update(deltaTime) {
             }
         }
         
-        // Boss attacks
         if (Date.now() > boss.attackCooldown) {
             boss.attackCooldown = Date.now() + 2000 / boss.phase;
             
-            // More enemies in higher phases
             const attackCount = 1 + Math.floor(boss.phase / 2);
             for (let i = 0; i < attackCount; i++) {
                 enemies.push({
@@ -785,7 +800,6 @@ function update(deltaTime) {
         }
     }
     
-    // Update explosions
     for (let i = explosions.length - 1; i >= 0; i--) {
         explosions[i].radius += explosions[i].growthRate * deltaFactor;
         explosions[i].alpha -= 0.02 * deltaFactor;
@@ -795,7 +809,6 @@ function update(deltaTime) {
         }
     }
     
-    // Update particles
     for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].x += particles[i].speedX * deltaFactor;
         particles[i].y += particles[i].speedY * deltaFactor;
@@ -806,8 +819,8 @@ function update(deltaTime) {
         }
     }
     
-    // Level progression
     if (gems.length === 0 && !bossActive) {
+        playSound('levelClearSound');
         level++;
         updateHUD();
         generateObjects();
@@ -815,7 +828,6 @@ function update(deltaTime) {
 }
 
 function createExplosion(x, y, particleCount = 20) {
-    // Create explosion effect
     explosions.push({
         x, y,
         radius: 5,
@@ -824,7 +836,6 @@ function createExplosion(x, y, particleCount = 20) {
         color: `rgba(255, 150, 50, 1)`
     });
     
-    // Create particles
     for (let i = 0; i < particleCount; i++) {
         particles.push({
             x, y,
@@ -851,14 +862,10 @@ function updateHUD() {
 }
 
 function render() {
-    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw background
     ctx.drawImage(assets.bgImage, 0, 0, canvas.width, canvas.height);
     
     if (gameActive) {
-        // Draw gems with rotation
         gems.forEach(gem => {
             ctx.save();
             ctx.translate(gem.x + gem.width/2, gem.y + gem.height/2);
@@ -867,14 +874,12 @@ function render() {
             ctx.restore();
         });
         
-        // Draw powerups with rotation
         powerups.forEach(powerup => {
             ctx.save();
             ctx.translate(powerup.x + powerup.width/2, powerup.y + powerup.height/2);
             ctx.rotate(powerup.rotation);
             ctx.drawImage(assets.powerupImage, -powerup.width/2, -powerup.height/2, powerup.width, powerup.height);
             
-            // Draw icon for extra life
             if (powerup.type === "extra_life") {
                 ctx.fillStyle = "red";
                 ctx.font = "bold 20px Arial";
@@ -885,16 +890,13 @@ function render() {
             ctx.restore();
         });
         
-        // Draw enemies
         enemies.forEach(enemy => {
             if (enemy.frozen) {
-                // Draw frozen effect
                 ctx.save();
                 ctx.globalAlpha = 0.7;
                 ctx.drawImage(assets.monsterImage, enemy.x, enemy.y, enemy.width, enemy.height);
                 ctx.restore();
                 
-                // Ice overlay
                 ctx.fillStyle = "rgba(100, 100, 255, 0.3)";
                 ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
             } else {
@@ -902,10 +904,8 @@ function render() {
             }
         });
         
-        // Draw abilities
         abilities.forEach(ability => {
             if (ability.type === "fireball") {
-                // Fireball core
                 ctx.fillStyle = "#ff9933";
                 ctx.beginPath();
                 ctx.arc(
@@ -917,7 +917,6 @@ function render() {
                 );
                 ctx.fill();
                 
-                // Fireball inner glow
                 ctx.fillStyle = "#ff3333";
                 ctx.beginPath();
                 ctx.arc(
@@ -929,7 +928,6 @@ function render() {
                 );
                 ctx.fill();
                 
-                // Fireball outer glow
                 const gradient = ctx.createRadialGradient(
                     ability.x + ability.width/2,
                     ability.y + ability.height/2,
@@ -952,7 +950,6 @@ function render() {
                 );
                 ctx.fill();
                 
-                // Fire trail particles
                 if (Math.random() < 0.3) {
                     particles.push({
                         x: ability.x + ability.width/2,
@@ -966,7 +963,6 @@ function render() {
                 }
             } 
             else if (ability.type === "lightning") {
-                // Lightning bolt
                 ctx.strokeStyle = "#aa33ff";
                 ctx.lineWidth = 3;
                 ctx.beginPath();
@@ -974,7 +970,6 @@ function render() {
                 ctx.lineTo(ability.x + ability.width/2, ability.y + ability.height);
                 ctx.stroke();
                 
-                // Lightning glow
                 ctx.strokeStyle = "rgba(200, 150, 255, 0.5)";
                 ctx.lineWidth = 8;
                 ctx.beginPath();
@@ -982,7 +977,6 @@ function render() {
                 ctx.lineTo(ability.x + ability.width/2, ability.y + ability.height);
                 ctx.stroke();
                 
-                // Lightning particles
                 if (Math.random() < 0.5) {
                     particles.push({
                         x: ability.x + ability.width/2 + (Math.random() - 0.5) * 10,
@@ -997,16 +991,12 @@ function render() {
             }
         });
         
-        // Draw boss
         if (bossActive) {
-            // Draw boss image
             ctx.drawImage(assets.bossImage, boss.x, boss.y, boss.width, boss.height);
             
-            // Boss health bar background
             ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
             ctx.fillRect(boss.x + 10, boss.y - 25, boss.width - 20, 15);
             
-            // Boss health bar
             const healthWidth = (boss.width - 20) * (boss.health / boss.maxHealth);
             const healthColor = healthWidth > (boss.width - 20) * 0.5 ? "#00ff00" : 
                               healthWidth > (boss.width - 20) * 0.25 ? "#ffff00" : "#ff0000";
@@ -1014,7 +1004,6 @@ function render() {
             ctx.fillStyle = healthColor;
             ctx.fillRect(boss.x + 10, boss.y - 25, healthWidth, 15);
             
-            // Boss health text
             ctx.fillStyle = "white";
             ctx.font = "bold 12px Arial";
             ctx.textAlign = "center";
@@ -1024,7 +1013,6 @@ function render() {
                 boss.y - 12
             );
             
-            // Phase indicator
             ctx.fillStyle = "rgba(255, 0, 0, 0.7)";
             ctx.font = "bold 14px Arial";
             ctx.fillText(
@@ -1034,7 +1022,6 @@ function render() {
             );
         }
         
-        // Draw explosions
         explosions.forEach(explosion => {
             ctx.fillStyle = explosion.color.replace(/[\d\.]+\)$/, explosion.alpha + ")");
             ctx.beginPath();
@@ -1042,7 +1029,6 @@ function render() {
             ctx.fill();
         });
         
-        // Draw particles
         particles.forEach(particle => {
             ctx.fillStyle = particle.color;
             ctx.beginPath();
@@ -1050,10 +1036,8 @@ function render() {
             ctx.fill();
         });
         
-        // Draw dragon
         ctx.drawImage(assets.dragonImage, dragon.x, dragon.y, dragon.width, dragon.height);
         
-        // Flash effect when invincible
         if (powerupsActive.invincible && Math.floor(Date.now() / 100) % 2 === 0) {
             ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
             ctx.lineWidth = 3;
@@ -1068,7 +1052,6 @@ function render() {
             ctx.stroke();
         }
         
-        // Draw powerup indicators
         if (powerupsActive.speed_boost || powerupsActive.invincible || powerupsActive.magnet) {
             const remainingTime = Math.max(0, (powerupEndTime - Date.now()) / 1000).toFixed(1);
             let powerupText = "";
