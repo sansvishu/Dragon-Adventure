@@ -3,55 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon Adventure</title>
+    <title>Interactive Dashboard</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="gameContainer">
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="dashboard">
+        <header class="dashboard-header">
+            <h1>Analytics Dashboard</h1>
+            <div class="date-display" id="currentDate"></div>
+        </header>
         
-        <div id="hud">
-            <div>Score: <span id="scoreDisplay">0</span></div>
-            <div>Level: <span id="levelDisplay">1</span></div>
-            <div>Lives: <span id="livesDisplay">3</span></div>
-            <div>Dragon: <span id="dragonDisplay">Fire</span></div>
-        </div>
-        
-        <div id="abilityIndicator">
-            <div id="abilityBar"></div>
-        </div>
-        <div id="abilityText">Ability Ready (Press Space)</div>
-        
-        <div id="menuScreen">
-            <h1>Dragon Adventure</h1>
-            <button class="button" id="startButton">Start Game</button>
-            <button class="button" id="dragonSelectButton">Select Dragon</button>
-            <button class="button" id="quitButton">Quit</button>
-        </div>
-        
-        <div id="gameOverScreen">
-            <h1>Game Over</h1>
-            <h2>Final Score: <span id="finalScore">0</span></h2>
-            <h2>Level Reached: <span id="finalLevel">1</span></h2>
-            <button class="button" id="restartButton">Restart</button>
-            <button class="button" id="quitButton2">Quit</button>
-        </div>
-        
-        <div id="levelCompleteScreen">
-            <h1>Level Complete!</h1>
-            <h2>Score: <span id="levelScore">0</span></h2>
-            <button class="button" id="nextLevelButton">Next Level</button>
-        </div>
-        
-        <div class="mobile-controls" id="mobileControls">
-            <div class="mobile-btn" id="upBtn">↑</div>
-            <div class="mobile-btn" id="downBtn">↓</div>
-            <div class="mobile-btn" id="leftBtn">←</div>
-            <div class="mobile-btn" id="rightBtn">→</div>
-            <div class="mobile-btn" id="abilityBtn">A</div>
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <h3>Total Users</h3>
+                <div class="metric-value" id="totalUsers">2,451</div>
+                <div class="metric-change positive">+12%</div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>Revenue</h3>
+                <div class="metric-value" id="revenue">$8,245</div>
+                <div class="metric-change positive">+8%</div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>Conversion</h3>
+                <div class="metric-value" id="conversion">3.2%</div>
+                <div class="metric-change negative">-1.2%</div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>Active Sessions</h3>
+                <div class="metric-value" id="activeSessions">1,024</div>
+                <div class="metric-change positive">+4%</div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="mainChart"></canvas>
+            </div>
+            
+            <div class="data-table">
+                <h3>Recent Activity</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activityTable">
+                        <!-- Table content will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <script src="game.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
