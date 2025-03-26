@@ -26,22 +26,24 @@ const DRAGON_TYPES = {
     }
 };
 
-// Sound Effects
+// Sound Effects from Mixkit
 const sounds = {
-    bgMusic: new Audio("https://energetic-chiptune-video-game-music-platformer-8-bit-318348 (1).mp3"),
-    coinSound: new Audio("https://mixkit-winning-a-coin-video-game-2069.wav"),
-    loseSound: new Audio("https://mixkit-player-losing-or-failing-2042.wav"),
-    hitSound: new Audio("https://github.com/yourusername/game-sounds/raw/main/hit-enemy.mp3"),
-    levelClearSound: new Audio("https://github.com/yourusername/game-sounds/raw/main/level-clear.mp3"),
-    bonusSound: new Audio("https://mixkit-bonus-earned-in-video-game-2058.wav"),
-    fireSound: new Audio("https://mixkit-retro-arcade-casino-notification-211.wav"),
-    freezeSound: new Audio("https://mixkit.co/sfx/preview/mixkit-ice-shatter-1251.mp3"),
-    lightningSound: new Audio("https://mixkit.co/sfx/preview/mixkit-electronic-retro-block-hit-2185.mp3")
+    bgMusic: new Audio("https://assets.mixkit.co/music/preview/mixkit-game-show-suspense-waiting-668.mp3"),
+    coinSound: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-coin-win-notification-269.mp3"),
+    loseSound: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-losing-bleeps-2026.mp3"),
+    hitSound: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-2759.mp3"),
+    levelClearSound: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3"),
+    bonusSound: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-bonus-earned-in-video-game-2058.mp3"),
+    fireSound: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-flame-shot-fireball-1681.mp3"),
+    freezeSound: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-ice-shatter-1251.mp3"),
+    lightningSound: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-electronic-retro-block-hit-2185.mp3"),
+    bossSound: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-monster-demon-growl-16.mp3")
 };
 
 // Configure sounds
 sounds.bgMusic.loop = true;
-sounds.bgMusic.volume = 0.5;
+sounds.bgMusic.volume = 0.4;
+sounds.bossSound.volume = 0.3;
 
 // Game Variables
 let canvas, ctx;
@@ -355,8 +357,8 @@ function selectDragon() {
 }
 
 function generateObjects() {
-    // Generate gems
-    const gemCount = 5 + level * 2;
+    // Generate gems - 5 gems plus 1 per level (but not too many)
+    const gemCount = Math.min(5 + level, 15); // Max 15 gems per level
     for (let i = 0; i < gemCount; i++) {
         gems.push({
             x: Math.random() * (canvas.width - 30),
@@ -368,32 +370,32 @@ function generateObjects() {
         });
     }
     
-    // Generate enemies every 3 levels
-    if (level % 3 === 0) {
-        const enemyCount = Math.min(Math.floor(level / 3), 5);
+    // Generate enemies every 5 levels (less frequent)
+    if (level % 5 === 0) {
+        const enemyCount = Math.min(Math.floor(level / 5), 4); // Max 4 enemies
         for (let i = 0; i < enemyCount; i++) {
             enemies.push({
                 x: Math.random() * (canvas.width - 40),
                 y: Math.random() * -100 - 40,
                 width: 40,
                 height: 40,
-                speed: 1 + Math.random() * 2,
+                speed: 1 + Math.random() * 1.5, // Slower speed for kids
                 frozen: false,
                 frozenTime: 0,
-                health: 1 + Math.floor(level / 5)
+                health: 1 // All enemies take 1 hit to defeat
             });
         }
     }
     
-    // Generate boss every 5 levels
-    if (level % 5 === 0) {
+    // Generate boss every 10 levels (less frequent)
+    if (level % 10 === 0) {
         spawnBoss();
     }
     
-    // Generate powerups randomly
-    if (Math.random() < 0.3) {
+    // Generate powerups more frequently (40% chance)
+    if (Math.random() < 0.4) {
         const powerTypes = Object.keys(powerupsActive);
-        const powerType = Math.random() < 0.8 ? 
+        const powerType = Math.random() < 0.7 ? 
             powerTypes[Math.floor(Math.random() * powerTypes.length)] : 
             "extra_life";
         
@@ -411,15 +413,16 @@ function generateObjects() {
 
 function spawnBoss() {
     bossActive = true;
+    playSound('bossSound');
     boss = {
         x: canvas.width / 2 - 50,
         y: 100,
         width: 100,
         height: 100,
-        speed: 2,
+        speed: 1.5, // Slower speed for kids
         direction: 1,
-        health: 10 * level,
-        maxHealth: 10 * level,
+        health: 5 + level, // Easier bosses
+        maxHealth: 5 + level,
         attackCooldown: 0,
         phase: 1,
         lastPhaseChange: 0
@@ -440,7 +443,7 @@ function useAbility() {
                 y: dragon.y - 10,
                 width: 20,
                 height: 20,
-                speed: 10,
+                speed: 8, // Slightly slower for kids
                 damage: DRAGON_TYPES[currentDragon].damage,
                 type: "fireball"
             });
@@ -453,28 +456,28 @@ function useAbility() {
                 enemy.frozenTime = Date.now() + DRAGON_TYPES[currentDragon].duration;
             });
             
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 30; i++) { // Fewer particles
                 particles.push({
                     x: dragon.x + dragon.width/2,
                     y: dragon.y + dragon.height/2,
-                    size: Math.random() * 5 + 2,
+                    size: Math.random() * 4 + 2, // Smaller particles
                     color: `rgba(150, 200, 255, ${Math.random() * 0.7 + 0.3})`,
-                    speedX: (Math.random() - 0.5) * 5,
-                    speedY: (Math.random() - 0.5) * 5,
-                    life: 60 + Math.random() * 60
+                    speedX: (Math.random() - 0.5) * 4, // Slower particles
+                    speedY: (Math.random() - 0.5) * 4,
+                    life: 40 + Math.random() * 40 // Shorter life
                 });
             }
             break;
             
         case "Storm":
             playSound('lightningSound');
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 2; i++) { // Fewer lightning strikes
                 abilities.push({
                     x: dragon.x + dragon.width/2 - 5,
                     y: dragon.y - 30 - i * 20,
                     width: 10,
                     height: 30,
-                    lifetime: 30,
+                    lifetime: 25, // Shorter duration
                     damage: DRAGON_TYPES[currentDragon].damage,
                     type: "lightning"
                 });
@@ -562,15 +565,15 @@ function update(deltaTime) {
             playSound('coinSound');
             updateHUD();
             
-            for (let j = 0; j < 10; j++) {
+            for (let j = 0; j < 8; j++) { // Fewer particles
                 particles.push({
                     x: gem.x + gem.width/2,
                     y: gem.y + gem.height/2,
-                    size: Math.random() * 4 + 2,
+                    size: Math.random() * 3 + 2, // Smaller particles
                     color: `rgba(255, 215, 0, ${Math.random() * 0.7 + 0.3})`,
-                    speedX: (Math.random() - 0.5) * 3,
-                    speedY: (Math.random() - 0.5) * 3,
-                    life: 30 + Math.random() * 30
+                    speedX: (Math.random() - 0.5) * 2, // Slower particles
+                    speedY: (Math.random() - 0.5) * 2,
+                    life: 20 + Math.random() * 20 // Shorter life
                 });
             }
         }
@@ -588,30 +591,30 @@ function update(deltaTime) {
             
             if (powerup.type === "extra_life") {
                 lives++;
-                for (let j = 0; j < 15; j++) {
+                for (let j = 0; j < 10; j++) { // Fewer particles
                     particles.push({
                         x: powerup.x + powerup.width/2,
                         y: powerup.y + powerup.height/2,
-                        size: Math.random() * 5 + 3,
+                        size: Math.random() * 4 + 2, // Smaller particles
                         color: `rgba(255, 50, 50, ${Math.random() * 0.7 + 0.3})`,
-                        speedX: (Math.random() - 0.5) * 4,
-                        speedY: (Math.random() - 0.5) * 4,
-                        life: 40 + Math.random() * 40
+                        speedX: (Math.random() - 0.5) * 3, // Slower particles
+                        speedY: (Math.random() - 0.5) * 3,
+                        life: 30 + Math.random() * 30 // Shorter life
                     });
                 }
             } else {
                 powerupsActive[powerup.type] = true;
                 powerupEndTime = Date.now() + 10000;
                 
-                for (let j = 0; j < 20; j++) {
+                for (let j = 0; j < 15; j++) { // Fewer particles
                     particles.push({
                         x: powerup.x + powerup.width/2,
                         y: powerup.y + powerup.height/2,
-                        size: Math.random() * 6 + 2,
+                        size: Math.random() * 5 + 2, // Smaller particles
                         color: `rgba(255, 255, 100, ${Math.random() * 0.7 + 0.3})`,
-                        speedX: (Math.random() - 0.5) * 5,
-                        speedY: (Math.random() - 0.5) * 5,
-                        life: 50 + Math.random() * 50
+                        speedX: (Math.random() - 0.5) * 4, // Slower particles
+                        speedY: (Math.random() - 0.5) * 4,
+                        life: 40 + Math.random() * 40 // Shorter life
                     });
                 }
             }
@@ -640,7 +643,7 @@ function update(deltaTime) {
             playSound('hitSound');
             updateHUD();
             
-            createExplosion(enemy.x + enemy.width/2, enemy.y + enemy.height/2);
+            createExplosion(enemy.x + enemy.width/2, enemy.y + enemy.height/2, 15); // Fewer particles
             
             if (lives <= 0) {
                 gameOver = true;
@@ -675,7 +678,7 @@ function update(deltaTime) {
                     enemies[j].health -= ability.damage;
                     
                     if (enemies[j].health <= 0) {
-                        createExplosion(enemies[j].x + enemies[j].width/2, enemies[j].y + enemies[j].height/2);
+                        createExplosion(enemies[j].x + enemies[j].width/2, enemies[j].y + enemies[j].height/2, 10);
                         enemies.splice(j, 1);
                         score += 20;
                     }
@@ -690,23 +693,23 @@ function update(deltaTime) {
                 boss.health -= ability.damage;
                 abilities.splice(i, 1);
                 
-                createExplosion(ability.x + ability.width/2, ability.y + ability.height/2, 10);
+                createExplosion(ability.x + ability.width/2, ability.y + ability.height/2, 8);
                 
                 if (boss.health <= 0) {
-                    for (let k = 0; k < 100; k++) {
+                    for (let k = 0; k < 50; k++) { // Fewer particles
                         particles.push({
                             x: boss.x + boss.width/2,
                             y: boss.y + boss.height/2,
-                            size: Math.random() * 8 + 4,
+                            size: Math.random() * 6 + 3, // Smaller particles
                             color: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.8)`,
-                            speedX: (Math.random() - 0.5) * 10,
-                            speedY: (Math.random() - 0.5) * 10,
-                            life: 60 + Math.random() * 60
+                            speedX: (Math.random() - 0.5) * 8, // Slower particles
+                            speedY: (Math.random() - 0.5) * 8,
+                            life: 40 + Math.random() * 40 // Shorter life
                         });
                     }
                     
                     bossActive = false;
-                    score += 100 * level;
+                    score += 50 * level; // Reduced points for kids
                     updateHUD();
                 }
             }
@@ -724,7 +727,7 @@ function update(deltaTime) {
                     enemies[j].health -= ability.damage;
                     
                     if (enemies[j].health <= 0) {
-                        createExplosion(enemies[j].x + enemies[j].width/2, enemies[j].y + enemies[j].height/2);
+                        createExplosion(enemies[j].x + enemies[j].width/2, enemies[j].y + enemies[j].height/2, 10);
                         enemies.splice(j, 1);
                         score += 20;
                         updateHUD();
@@ -736,20 +739,20 @@ function update(deltaTime) {
                 boss.health -= ability.damage;
                 
                 if (boss.health <= 0) {
-                    for (let k = 0; k < 100; k++) {
+                    for (let k = 0; k < 50; k++) { // Fewer particles
                         particles.push({
                             x: boss.x + boss.width/2,
                             y: boss.y + boss.height/2,
-                            size: Math.random() * 8 + 4,
+                            size: Math.random() * 6 + 3, // Smaller particles
                             color: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.8)`,
-                            speedX: (Math.random() - 0.5) * 10,
-                            speedY: (Math.random() - 0.5) * 10,
-                            life: 60 + Math.random() * 60
+                            speedX: (Math.random() - 0.5) * 8, // Slower particles
+                            speedY: (Math.random() - 0.5) * 8,
+                            life: 40 + Math.random() * 40 // Shorter life
                         });
                     }
                     
                     bossActive = false;
-                    score += 100 * level;
+                    score += 50 * level; // Reduced points for kids
                     updateHUD();
                 }
             }
@@ -763,35 +766,35 @@ function update(deltaTime) {
             boss.direction *= -1;
         }
         
-        if (Date.now() - boss.lastPhaseChange > 10000) {
+        if (Date.now() - boss.lastPhaseChange > 15000) { // Longer phase duration
             boss.lastPhaseChange = Date.now();
             boss.phase++;
-            boss.speed += 0.5;
+            boss.speed += 0.3; // Smaller speed increase
             
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 30; i++) { // Fewer particles
                 particles.push({
                     x: boss.x + boss.width/2,
                     y: boss.y + boss.height/2,
-                    size: Math.random() * 6 + 3,
+                    size: Math.random() * 5 + 2, // Smaller particles
                     color: `rgba(255, 0, 0, ${Math.random() * 0.7 + 0.3})`,
-                    speedX: (Math.random() - 0.5) * 8,
-                    speedY: (Math.random() - 0.5) * 8,
-                    life: 40 + Math.random() * 40
+                    speedX: (Math.random() - 0.5) * 6, // Slower particles
+                    speedY: (Math.random() - 0.5) * 6,
+                    life: 30 + Math.random() * 30 // Shorter life
                 });
             }
         }
         
         if (Date.now() > boss.attackCooldown) {
-            boss.attackCooldown = Date.now() + 2000 / boss.phase;
+            boss.attackCooldown = Date.now() + 3000 / boss.phase; // Slower attacks
             
-            const attackCount = 1 + Math.floor(boss.phase / 2);
+            const attackCount = 1 + Math.floor(boss.phase / 3); // Fewer attacks
             for (let i = 0; i < attackCount; i++) {
                 enemies.push({
                     x: boss.x + boss.width/2 - 20 + (i * 40 - (attackCount-1)*20),
                     y: boss.y + boss.height,
                     width: 40,
                     height: 40,
-                    speed: 2 * boss.phase,
+                    speed: 1.5 * boss.phase, // Slower enemies
                     frozen: false,
                     frozenTime: 0,
                     health: 1
@@ -802,7 +805,7 @@ function update(deltaTime) {
     
     for (let i = explosions.length - 1; i >= 0; i--) {
         explosions[i].radius += explosions[i].growthRate * deltaFactor;
-        explosions[i].alpha -= 0.02 * deltaFactor;
+        explosions[i].alpha -= 0.015 * deltaFactor; // Slower fade
         
         if (explosions[i].alpha <= 0) {
             explosions.splice(i, 1);
@@ -827,11 +830,11 @@ function update(deltaTime) {
     }
 }
 
-function createExplosion(x, y, particleCount = 20) {
+function createExplosion(x, y, particleCount = 15) {
     explosions.push({
         x, y,
         radius: 5,
-        growthRate: 2,
+        growthRate: 1.5, // Slower growth
         alpha: 1,
         color: `rgba(255, 150, 50, 1)`
     });
@@ -839,11 +842,11 @@ function createExplosion(x, y, particleCount = 20) {
     for (let i = 0; i < particleCount; i++) {
         particles.push({
             x, y,
-            size: Math.random() * 6 + 2,
+            size: Math.random() * 5 + 2, // Smaller particles
             color: `rgba(255, ${Math.floor(100 + Math.random() * 155)}, 0, ${Math.random() * 0.7 + 0.3})`,
-            speedX: (Math.random() - 0.5) * 8,
-            speedY: (Math.random() - 0.5) * 8,
-            life: 30 + Math.random() * 30
+            speedX: (Math.random() - 0.5) * 6, // Slower particles
+            speedY: (Math.random() - 0.5) * 6,
+            life: 20 + Math.random() * 20 // Shorter life
         });
     }
 }
@@ -882,7 +885,7 @@ function render() {
             
             if (powerup.type === "extra_life") {
                 ctx.fillStyle = "red";
-                ctx.font = "bold 20px Arial";
+                ctx.font = "bold 18px Arial"; // Smaller font
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.fillText("+1", 0, 0);
@@ -934,9 +937,9 @@ function render() {
                     ability.width/3,
                     ability.x + ability.width/2,
                     ability.y + ability.height/2,
-                    ability.width/2 + 5
+                    ability.width/2 + 4 // Smaller glow
                 );
-                gradient.addColorStop(0, "rgba(255, 100, 0, 0.8)");
+                gradient.addColorStop(0, "rgba(255, 100, 0, 0.7)"); // Less intense
                 gradient.addColorStop(1, "rgba(255, 100, 0, 0)");
                 
                 ctx.fillStyle = gradient;
@@ -944,48 +947,48 @@ function render() {
                 ctx.arc(
                     ability.x + ability.width/2,
                     ability.y + ability.height/2,
-                    ability.width/2 + 5,
+                    ability.width/2 + 4, // Smaller glow
                     0,
                     Math.PI * 2
                 );
                 ctx.fill();
                 
-                if (Math.random() < 0.3) {
+                if (Math.random() < 0.2) { // Less frequent particles
                     particles.push({
                         x: ability.x + ability.width/2,
                         y: ability.y + ability.height,
-                        size: Math.random() * 3 + 1,
+                        size: Math.random() * 2 + 1, // Smaller particles
                         color: `rgba(255, ${Math.floor(100 + Math.random() * 100)}, 0, ${Math.random() * 0.5 + 0.5})`,
-                        speedX: (Math.random() - 0.5) * 2,
-                        speedY: -Math.random() * 2,
-                        life: 20 + Math.random() * 20
+                        speedX: (Math.random() - 0.5) * 1.5, // Slower particles
+                        speedY: -Math.random() * 1.5,
+                        life: 15 + Math.random() * 15 // Shorter life
                     });
                 }
             } 
             else if (ability.type === "lightning") {
                 ctx.strokeStyle = "#aa33ff";
-                ctx.lineWidth = 3;
+                ctx.lineWidth = 2; // Thinner lightning
                 ctx.beginPath();
                 ctx.moveTo(ability.x + ability.width/2, ability.y);
                 ctx.lineTo(ability.x + ability.width/2, ability.y + ability.height);
                 ctx.stroke();
                 
-                ctx.strokeStyle = "rgba(200, 150, 255, 0.5)";
-                ctx.lineWidth = 8;
+                ctx.strokeStyle = "rgba(200, 150, 255, 0.4)"; // Less intense
+                ctx.lineWidth = 6; // Thinner glow
                 ctx.beginPath();
                 ctx.moveTo(ability.x + ability.width/2, ability.y);
                 ctx.lineTo(ability.x + ability.width/2, ability.y + ability.height);
                 ctx.stroke();
                 
-                if (Math.random() < 0.5) {
+                if (Math.random() < 0.3) { // Less frequent particles
                     particles.push({
-                        x: ability.x + ability.width/2 + (Math.random() - 0.5) * 10,
+                        x: ability.x + ability.width/2 + (Math.random() - 0.5) * 8, // Smaller spread
                         y: ability.y + Math.random() * ability.height,
-                        size: Math.random() * 2 + 1,
+                        size: Math.random() * 1.5 + 1, // Smaller particles
                         color: `rgba(200, 150, 255, ${Math.random() * 0.5 + 0.5})`,
-                        speedX: (Math.random() - 0.5) * 3,
-                        speedY: (Math.random() - 0.5) * 3,
-                        life: 10 + Math.random() * 10
+                        speedX: (Math.random() - 0.5) * 2, // Slower particles
+                        speedY: (Math.random() - 0.5) * 2,
+                        life: 8 + Math.random() * 8 // Shorter life
                     });
                 }
             }
@@ -994,31 +997,31 @@ function render() {
         if (bossActive) {
             ctx.drawImage(assets.bossImage, boss.x, boss.y, boss.width, boss.height);
             
-            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-            ctx.fillRect(boss.x + 10, boss.y - 25, boss.width - 20, 15);
+            ctx.fillStyle = "rgba(0, 0, 0, 0.6)"; // Less intense
+            ctx.fillRect(boss.x + 10, boss.y - 25, boss.width - 20, 12); // Smaller bar
             
             const healthWidth = (boss.width - 20) * (boss.health / boss.maxHealth);
             const healthColor = healthWidth > (boss.width - 20) * 0.5 ? "#00ff00" : 
                               healthWidth > (boss.width - 20) * 0.25 ? "#ffff00" : "#ff0000";
             
             ctx.fillStyle = healthColor;
-            ctx.fillRect(boss.x + 10, boss.y - 25, healthWidth, 15);
+            ctx.fillRect(boss.x + 10, boss.y - 25, healthWidth, 12); // Smaller bar
             
             ctx.fillStyle = "white";
-            ctx.font = "bold 12px Arial";
+            ctx.font = "bold 10px Arial"; // Smaller font
             ctx.textAlign = "center";
             ctx.fillText(
                 `BOSS: ${Math.ceil(boss.health)}/${boss.maxHealth}`, 
                 boss.x + boss.width/2, 
-                boss.y - 12
+                boss.y - 18 // Adjusted position
             );
             
-            ctx.fillStyle = "rgba(255, 0, 0, 0.7)";
-            ctx.font = "bold 14px Arial";
+            ctx.fillStyle = "rgba(255, 0, 0, 0.6)"; // Less intense
+            ctx.font = "bold 12px Arial"; // Smaller font
             ctx.fillText(
                 `PHASE ${boss.phase}`, 
                 boss.x + boss.width/2, 
-                boss.y - 40
+                boss.y - 35 // Adjusted position
             );
         }
         
@@ -1039,13 +1042,13 @@ function render() {
         ctx.drawImage(assets.dragonImage, dragon.x, dragon.y, dragon.width, dragon.height);
         
         if (powerupsActive.invincible && Math.floor(Date.now() / 100) % 2 === 0) {
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
-            ctx.lineWidth = 3;
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.6)"; // Less intense
+            ctx.lineWidth = 2; // Thinner border
             ctx.beginPath();
             ctx.arc(
                 dragon.x + dragon.width/2,
                 dragon.y + dragon.height/2,
-                dragon.width/2 + 5,
+                dragon.width/2 + 3, // Smaller glow
                 0,
                 Math.PI * 2
             );
@@ -1062,13 +1065,13 @@ function render() {
             
             powerupText += `(${remainingTime}s)`;
             
-            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-            ctx.font = "bold 16px Arial";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.6)"; // Less intense
+            ctx.font = "bold 14px Arial"; // Smaller font
             ctx.textAlign = "center";
             ctx.fillText(
                 powerupText,
                 canvas.width / 2,
-                30
+                25 // Higher position
             );
         }
     }
