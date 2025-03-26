@@ -6,7 +6,7 @@ const DRAGON_TYPES = {
         ability: "Fireball", 
         cooldown: 3000, 
         damage: 3,
-        abilitySound: "fireball"
+        description: "Shoots powerful fireballs"
     },
     "Ice": { 
         color: "#3333ff", 
@@ -14,7 +14,7 @@ const DRAGON_TYPES = {
         ability: "Freeze", 
         cooldown: 5000, 
         duration: 3000,
-        abilitySound: "freeze"
+        description: "Freezes all enemies temporarily"
     },
     "Storm": { 
         color: "#aa33ff", 
@@ -22,7 +22,7 @@ const DRAGON_TYPES = {
         ability: "Lightning", 
         cooldown: 4000, 
         damage: 2,
-        abilitySound: "lightning"
+        description: "Casts lightning that damages all enemies"
     }
 };
 
@@ -43,7 +43,8 @@ let powerupsActive = {
 };
 let powerupEndTime = 0;
 let isMobile = false;
-let sounds = {};
+let lastTime = 0;
+let deltaTime = 0;
 
 // Game Objects
 let dragon = {
@@ -56,30 +57,59 @@ let enemies = [];
 let powerups = [];
 let abilities = [];
 let boss = null;
+let explosions = [];
+let particles = [];
 
 // Image assets
 const assets = {
-    bgImage: 'https://i.postimg.cc/bs0QLhQh/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg',
-    dragonImage: 'https://i.postimg.cc/K3TvQxwh/dragon-removebg-preview.png',
-    coinImage: 'https://i.postimg.cc/0MbNMpCQ/gold-coin-removebg-preview.png',
-    monsterImage: 'https://i.postimg.cc/0MFypbtC/monster-removebg-preview.png',
-    powerupImage: 'https://i.postimg.cc/k2R3bf0L/star-removebg-preview.png'
+    bg: 'https://i.postimg.cc/bs0QLhQh/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg',
+    dragon: 'https://i.postimg.cc/K3TvQxwh/dragon-removebg-preview.png',
+    coin: 'https://i.postimg.cc/0MbNMpCQ/gold-coin-removebg-preview.png',
+    monster: 'https://i.postimg.cc/0MFypbtC/monster-removebg-preview.png',
+    powerup: 'https://i.postimg.cc/k2R3bf0L/star-removebg-preview.png',
+    boss: 'https://i.postimg.cc/0MFypbtC/monster-removebg-preview.png' // Using monster as boss for now
 };
 
-// Sound assets
-const soundAssets = {
-    collect: 'https://assets.mixkit.co/sfx/preview/mixkit-coin-win-notification-1992.mp3',
-    fireball: 'https://assets.mixkit.co/sfx/preview/mixkit-fireball-spell-1664.mp3',
-    freeze: 'https://assets.mixkit.co/sfx/preview/mixkit-magic-spell-hit-1682.mp3',
-    lightning: 'https://assets.mixkit.co/sfx/preview/mixkit-light-spell-hit-1681.mp3',
-    hit: 'https://assets.mixkit.co/sfx/preview/mixkit-player-jumping-into-water-1946.mp3',
-    powerup: 'https://assets.mixkit.co/sfx/preview/mixkit-bonus-earned-in-video-game-2058.mp3',
-    gameOver: 'https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3',
-    levelUp: 'https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3'
-};
+// Load images
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+    });
+}
+
+async function loadAssets() {
+    try {
+        const [
+            bgImage, 
+            dragonImage, 
+            coinImage, 
+            monsterImage, 
+            powerupImage,
+            bossImage
+        ] = await Promise.all([
+            loadImage(assets.bg),
+            loadImage(assets.dragon),
+            loadImage(assets.coin),
+            loadImage(assets.monster),
+            loadImage(assets.powerup),
+            loadImage(assets.boss)
+        ]);
+        
+        return {
+            bgImage, dragonImage, coinImage, 
+            monsterImage, powerupImage, bossImage
+        };
+    } catch (error) {
+        console.error("Error loading images:", error);
+        throw error;
+    }
+}
 
 // Initialize game
-function init() {
+async function init() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
     
@@ -88,53 +118,22 @@ function init() {
     if (isMobile) {
         document.getElementById('mobileControls').style.display = 'block';
         setupMobileControls();
-        
-        // Adjust canvas size for mobile
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        dragon.x = canvas.width / 2 - dragon.width / 2;
-        dragon.y = canvas.height - dragon.height - 20;
     }
     
-    // Load images
-    loadImages();
-    
-    // Load sounds
-    loadSounds();
+    // Load assets
+    const images = await loadAssets();
+    Object.assign(assets, images);
     
     // Event listeners
-    setupEventListeners();
-    
-    // Start game loop
-    requestAnimationFrame(gameLoop);
-}
-
-function loadImages() {
-    Object.entries(assets).forEach(([key, src]) => {
-        const img = new Image();
-        img.src = src;
-        assets[key] = img;
-    });
-}
-
-function loadSounds() {
-    Object.entries(soundAssets).forEach(([key, src]) => {
-        const sound = new Audio(src);
-        sound.volume = 0.3;
-        sounds[key] = sound;
-    });
-}
-
-function setupEventListeners() {
     document.getElementById('startButton').addEventListener('click', startGame);
     document.getElementById('restartButton').addEventListener('click', startGame);
     document.getElementById('quitButton').addEventListener('click', () => {
-        if (confirm('Are you sure you want to quit?')) {
+        if (confirm("Are you sure you want to quit?")) {
             window.close();
         }
     });
     document.getElementById('quitButton2').addEventListener('click', () => {
-        if (confirm('Are you sure you want to quit?')) {
+        if (confirm("Are you sure you want to quit?")) {
             window.close();
         }
     });
@@ -144,21 +143,9 @@ function setupEventListeners() {
     window.addEventListener('keydown', keyDown);
     window.addEventListener('keyup', keyUp);
     
-    // Window resize handler
-    window.addEventListener('resize', handleResize);
-}
-
-function handleResize() {
-    if (isMobile) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        
-        // Adjust dragon position
-        if (gameActive) {
-            dragon.x = Math.min(dragon.x, canvas.width - dragon.width);
-            dragon.y = Math.min(dragon.y, canvas.height - dragon.height);
-        }
-    }
+    // Start game loop
+    lastTime = performance.now();
+    requestAnimationFrame(gameLoop);
 }
 
 function setupMobileControls() {
@@ -169,19 +156,43 @@ function setupMobileControls() {
     const abilityBtn = document.getElementById('abilityBtn');
     
     // Touch events
-    upBtn.addEventListener('touchstart', () => dragon.dy = -dragon.speed);
-    upBtn.addEventListener('touchend', () => { if (dragon.dy < 0) dragon.dy = 0 });
+    const handleTouchStart = (direction) => {
+        const speed = dragon.speed * (powerupsActive.speed_boost ? 1.5 : 1);
+        switch(direction) {
+            case 'up': dragon.dy = -speed; break;
+            case 'down': dragon.dy = speed; break;
+            case 'left': dragon.dx = -speed; break;
+            case 'right': dragon.dx = speed; break;
+        }
+    };
     
-    downBtn.addEventListener('touchstart', () => dragon.dy = dragon.speed);
-    downBtn.addEventListener('touchend', () => { if (dragon.dy > 0) dragon.dy = 0 });
+    const handleTouchEnd = (direction) => {
+        switch(direction) {
+            case 'up': if (dragon.dy < 0) dragon.dy = 0; break;
+            case 'down': if (dragon.dy > 0) dragon.dy = 0; break;
+            case 'left': if (dragon.dx < 0) dragon.dx = 0; break;
+            case 'right': if (dragon.dx > 0) dragon.dx = 0; break;
+        }
+    };
     
-    leftBtn.addEventListener('touchstart', () => dragon.dx = -dragon.speed);
-    leftBtn.addEventListener('touchend', () => { if (dragon.dx < 0) dragon.dx = 0 });
+    upBtn.addEventListener('touchstart', () => handleTouchStart('up'));
+    upBtn.addEventListener('touchend', () => handleTouchEnd('up'));
     
-    rightBtn.addEventListener('touchstart', () => dragon.dx = dragon.speed);
-    rightBtn.addEventListener('touchend', () => { if (dragon.dx > 0) dragon.dx = 0 });
+    downBtn.addEventListener('touchstart', () => handleTouchStart('down'));
+    downBtn.addEventListener('touchend', () => handleTouchEnd('down'));
+    
+    leftBtn.addEventListener('touchstart', () => handleTouchStart('left'));
+    leftBtn.addEventListener('touchend', () => handleTouchEnd('left'));
+    
+    rightBtn.addEventListener('touchstart', () => handleTouchStart('right'));
+    rightBtn.addEventListener('touchend', () => handleTouchEnd('right'));
     
     abilityBtn.addEventListener('touchstart', useAbility);
+    
+    // Prevent default to avoid scrolling
+    document.querySelectorAll('.mobile-btn').forEach(btn => {
+        btn.addEventListener('touchstart', (e) => e.preventDefault());
+    });
 }
 
 function keyDown(e) {
@@ -191,27 +202,22 @@ function keyDown(e) {
     
     switch(e.key) {
         case 'ArrowLeft':
-        case 'a':
-        case 'A':
             dragon.dx = -speed;
             break;
         case 'ArrowRight':
-        case 'd':
-        case 'D':
             dragon.dx = speed;
             break;
         case 'ArrowUp':
-        case 'w':
-        case 'W':
             dragon.dy = -speed;
             break;
         case 'ArrowDown':
-        case 's':
-        case 'S':
             dragon.dy = speed;
             break;
         case ' ':
             useAbility();
+            break;
+        case 'Escape':
+            togglePause();
             break;
     }
 }
@@ -219,25 +225,30 @@ function keyDown(e) {
 function keyUp(e) {
     switch(e.key) {
         case 'ArrowLeft':
-        case 'a':
-        case 'A':
             if (dragon.dx < 0) dragon.dx = 0;
             break;
         case 'ArrowRight':
-        case 'd':
-        case 'D':
             if (dragon.dx > 0) dragon.dx = 0;
             break;
         case 'ArrowUp':
-        case 'w':
-        case 'W':
             if (dragon.dy < 0) dragon.dy = 0;
             break;
         case 'ArrowDown':
-        case 's':
-        case 'S':
             if (dragon.dy > 0) dragon.dy = 0;
             break;
+    }
+}
+
+function togglePause() {
+    if (gameOver) return;
+    
+    gameActive = !gameActive;
+    if (gameActive) {
+        document.getElementById('menuScreen').style.display = 'none';
+        lastTime = performance.now(); // Reset timing for smooth animation
+    } else {
+        document.getElementById('menuScreen').style.display = 'flex';
+        document.querySelector('#menuScreen h1').textContent = 'Game Paused';
     }
 }
 
@@ -251,8 +262,8 @@ function startGame() {
     bossActive = false;
     
     // Reset dragon
-    dragon.x = isMobile ? canvas.width / 2 - dragon.width / 2 : 400;
-    dragon.y = isMobile ? canvas.height - dragon.height - 20 : 500;
+    dragon.x = 400;
+    dragon.y = 500;
     dragon.dx = 0;
     dragon.dy = 0;
     dragon.speed = DRAGON_TYPES[currentDragon].speed;
@@ -263,11 +274,8 @@ function startGame() {
     powerups = [];
     abilities = [];
     boss = null;
-    
-    // Reset powerups
-    powerupsActive.speed_boost = false;
-    powerupsActive.invincible = false;
-    powerupsActive.magnet = false;
+    explosions = [];
+    particles = [];
     
     // Generate initial objects
     generateObjects();
@@ -278,6 +286,11 @@ function startGame() {
     
     // Update HUD
     updateHUD();
+    
+    // Reset ability cooldown
+    abilityCooldown = 0;
+    document.getElementById('abilityBar').style.transform = 'scaleX(0)';
+    document.getElementById('abilityText').textContent = "Ability Ready (Press Space)";
 }
 
 function selectDragon() {
@@ -288,8 +301,9 @@ function selectDragon() {
     document.getElementById('dragonDisplay').textContent = currentDragon;
     dragon.speed = DRAGON_TYPES[currentDragon].speed;
     
-    // Play sound effect
-    sounds.powerup.play();
+    // Show dragon info tooltip
+    const dragonInfo = DRAGON_TYPES[currentDragon];
+    alert(`Selected: ${currentDragon} Dragon\nAbility: ${dragonInfo.ability}\n${dragonInfo.description}`);
 }
 
 function generateObjects() {
@@ -301,7 +315,8 @@ function generateObjects() {
             y: Math.random() * (canvas.height - 150),
             width: 30,
             height: 30,
-            value: 10 + Math.floor(level / 2)
+            rotation: Math.random() * Math.PI * 2,
+            rotationSpeed: (Math.random() - 0.5) * 0.1
         });
     }
     
@@ -316,7 +331,8 @@ function generateObjects() {
                 height: 40,
                 speed: 1 + Math.random() * 2,
                 frozen: false,
-                frozenTime: 0
+                frozenTime: 0,
+                health: 1 + Math.floor(level / 5)
             });
         }
     }
@@ -338,7 +354,9 @@ function generateObjects() {
             y: Math.random() * (canvas.height - 150),
             width: 30,
             height: 30,
-            type: powerType
+            type: powerType,
+            rotation: 0,
+            rotationSpeed: 0.05
         });
     }
 }
@@ -354,24 +372,24 @@ function spawnBoss() {
         direction: 1,
         health: 10 * level,
         maxHealth: 10 * level,
-        attackCooldown: 0
+        attackCooldown: 0,
+        phase: 1,
+        lastPhaseChange: 0
     };
 }
 
 function useAbility() {
-    if (Date.now() < abilityCooldown) return;
+    if (Date.now() < abilityCooldown || !gameActive) return;
     
     abilityCooldown = Date.now() + DRAGON_TYPES[currentDragon].cooldown;
     updateAbilityBar();
     
-    // Play ability sound
-    sounds[DRAGON_TYPES[currentDragon].abilitySound].play();
-    
     switch(currentDragon) {
         case "Fire":
+            // Create fireball
             abilities.push({
                 x: dragon.x + dragon.width/2 - 10,
-                y: dragon.y - dragon.height/2,
+                y: dragon.y - 10,
                 width: 20,
                 height: 20,
                 speed: 10,
@@ -386,18 +404,34 @@ function useAbility() {
                 enemy.frozen = true;
                 enemy.frozenTime = Date.now() + DRAGON_TYPES[currentDragon].duration;
             });
+            
+            // Create ice effect particles
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: dragon.x + dragon.width/2,
+                    y: dragon.y + dragon.height/2,
+                    size: Math.random() * 5 + 2,
+                    color: `rgba(150, 200, 255, ${Math.random() * 0.7 + 0.3})`,
+                    speedX: (Math.random() - 0.5) * 5,
+                    speedY: (Math.random() - 0.5) * 5,
+                    life: 60 + Math.random() * 60
+                });
+            }
             break;
             
         case "Storm":
-            abilities.push({
-                x: dragon.x + dragon.width/2 - 5,
-                y: dragon.y - dragon.height/2,
-                width: 10,
-                height: 30,
-                lifetime: 30,
-                damage: DRAGON_TYPES[currentDragon].damage,
-                type: "lightning"
-            });
+            // Create multiple lightning strikes
+            for (let i = 0; i < 3; i++) {
+                abilities.push({
+                    x: dragon.x + dragon.width/2 - 5,
+                    y: dragon.y - 30 - i * 20,
+                    width: 10,
+                    height: 30,
+                    lifetime: 30,
+                    damage: DRAGON_TYPES[currentDragon].damage,
+                    type: "lightning"
+                });
+            }
             break;
     }
 }
@@ -428,18 +462,24 @@ function updateAbilityBar() {
     animate();
 }
 
-function gameLoop() {
+function gameLoop(timestamp) {
+    deltaTime = timestamp - lastTime;
+    lastTime = timestamp;
+    
     if (gameActive) {
-        update();
+        update(deltaTime);
     }
     render();
     requestAnimationFrame(gameLoop);
 }
 
-function update() {
+function update(deltaTime) {
+    // Normalize for frame rate
+    const deltaFactor = deltaTime / 16.67; // Normalize to 60fps
+    
     // Update dragon position
-    dragon.x += dragon.dx;
-    dragon.y += dragon.dy;
+    dragon.x += dragon.dx * deltaFactor;
+    dragon.y += dragon.dy * deltaFactor;
     
     // Keep dragon in bounds
     dragon.x = Math.max(0, Math.min(canvas.width - dragon.width, dragon.x));
@@ -452,9 +492,9 @@ function update() {
             const dy = dragon.y + dragon.height/2 - (gem.y + gem.height/2);
             const distance = Math.sqrt(dx*dx + dy*dy);
             
-            if (distance > 0 && distance < 200) {
-                gem.x += dx / distance * 3;
-                gem.y += dy / distance * 3;
+            if (distance > 0 && distance < 200) { // Only attract within 200px
+                gem.x += dx / distance * 3 * deltaFactor;
+                gem.y += dy / distance * 3 * deltaFactor;
             }
         });
     }
@@ -468,16 +508,38 @@ function update() {
         }
     }
     
+    // Update gems rotation
+    gems.forEach(gem => {
+        gem.rotation += gem.rotationSpeed * deltaFactor;
+    });
+    
     // Check gem collisions
     for (let i = gems.length - 1; i >= 0; i--) {
         const gem = gems[i];
         if (checkCollision(dragon, gem)) {
             gems.splice(i, 1);
-            score += gem.value;
+            score += 10;
             updateHUD();
-            sounds.collect.play();
+            
+            // Create particles for collection effect
+            for (let j = 0; j < 10; j++) {
+                particles.push({
+                    x: gem.x + gem.width/2,
+                    y: gem.y + gem.height/2,
+                    size: Math.random() * 4 + 2,
+                    color: `rgba(255, 215, 0, ${Math.random() * 0.7 + 0.3})`,
+                    speedX: (Math.random() - 0.5) * 3,
+                    speedY: (Math.random() - 0.5) * 3,
+                    life: 30 + Math.random() * 30
+                });
+            }
         }
     }
+    
+    // Update powerups rotation
+    powerups.forEach(powerup => {
+        powerup.rotation += powerup.rotationSpeed * deltaFactor;
+    });
     
     // Check powerup collisions
     for (let i = powerups.length - 1; i >= 0; i--) {
@@ -487,11 +549,34 @@ function update() {
             
             if (powerup.type === "extra_life") {
                 lives++;
-                sounds.powerup.play();
+                // Create heart particles
+                for (let j = 0; j < 15; j++) {
+                    particles.push({
+                        x: powerup.x + powerup.width/2,
+                        y: powerup.y + powerup.height/2,
+                        size: Math.random() * 5 + 3,
+                        color: `rgba(255, 50, 50, ${Math.random() * 0.7 + 0.3})`,
+                        speedX: (Math.random() - 0.5) * 4,
+                        speedY: (Math.random() - 0.5) * 4,
+                        life: 40 + Math.random() * 40
+                    });
+                }
             } else {
                 powerupsActive[powerup.type] = true;
                 powerupEndTime = Date.now() + 10000; // 10 seconds
-                sounds.powerup.play();
+                
+                // Create star particles
+                for (let j = 0; j < 20; j++) {
+                    particles.push({
+                        x: powerup.x + powerup.width/2,
+                        y: powerup.y + powerup.height/2,
+                        size: Math.random() * 6 + 2,
+                        color: `rgba(255, 255, 100, ${Math.random() * 0.7 + 0.3})`,
+                        speedX: (Math.random() - 0.5) * 5,
+                        speedY: (Math.random() - 0.5) * 5,
+                        life: 50 + Math.random() * 50
+                    });
+                }
             }
             updateHUD();
         }
@@ -508,7 +593,7 @@ function update() {
             enemy.frozen = false;
         }
         
-        enemy.y += enemy.speed;
+        enemy.y += enemy.speed * deltaFactor;
         
         // Wrap around if off screen
         if (enemy.y > canvas.height) {
@@ -520,7 +605,9 @@ function update() {
         if (!powerupsActive.invincible && checkCollision(dragon, enemy)) {
             lives--;
             updateHUD();
-            sounds.hit.play();
+            
+            // Create explosion effect
+            createExplosion(enemy.x + enemy.width/2, enemy.y + enemy.height/2);
             
             if (lives <= 0) {
                 gameOver = true;
@@ -528,7 +615,6 @@ function update() {
                 document.getElementById('finalScore').textContent = score;
                 document.getElementById('finalLevel').textContent = level;
                 document.getElementById('gameOverScreen').style.display = 'flex';
-                sounds.gameOver.play();
             } else {
                 // Brief invincibility after hit
                 powerupsActive.invincible = true;
@@ -544,7 +630,7 @@ function update() {
         const ability = abilities[i];
         
         if (ability.type === "fireball") {
-            ability.y -= ability.speed;
+            ability.y -= ability.speed * deltaFactor;
             
             // Check if off screen
             if (ability.y + ability.height < 0) {
@@ -555,11 +641,18 @@ function update() {
             // Check collision with enemies
             for (let j = enemies.length - 1; j >= 0; j--) {
                 if (checkCollision(ability, enemies[j])) {
-                    enemies.splice(j, 1);
+                    enemies[j].health -= ability.damage;
+                    
+                    if (enemies[j].health <= 0) {
+                        // Create explosion effect
+                        createExplosion(enemies[j].x + enemies[j].width/2, enemies[j].y + enemies[j].height/2);
+                        
+                        enemies.splice(j, 1);
+                        score += 20;
+                    }
+                    
                     abilities.splice(i, 1);
-                    score += 20;
                     updateHUD();
-                    sounds.hit.play();
                     break;
                 }
             }
@@ -568,13 +661,27 @@ function update() {
             if (bossActive && checkCollision(ability, boss)) {
                 boss.health -= ability.damage;
                 abilities.splice(i, 1);
-                sounds.hit.play();
+                
+                // Create hit effect
+                createExplosion(ability.x + ability.width/2, ability.y + ability.height/2, 10);
                 
                 if (boss.health <= 0) {
+                    // Big explosion for boss
+                    for (let k = 0; k < 100; k++) {
+                        particles.push({
+                            x: boss.x + boss.width/2,
+                            y: boss.y + boss.height/2,
+                            size: Math.random() * 8 + 4,
+                            color: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.8)`,
+                            speedX: (Math.random() - 0.5) * 10,
+                            speedY: (Math.random() - 0.5) * 10,
+                            life: 60 + Math.random() * 60
+                        });
+                    }
+                    
                     bossActive = false;
                     score += 100 * level;
                     updateHUD();
-                    sounds.levelUp.play();
                 }
             }
         }
@@ -589,23 +696,40 @@ function update() {
             // Check collision with enemies
             for (let j = enemies.length - 1; j >= 0; j--) {
                 if (checkCollision(ability, enemies[j])) {
-                    enemies.splice(j, 1);
-                    score += 20;
-                    updateHUD();
-                    sounds.hit.play();
+                    enemies[j].health -= ability.damage;
+                    
+                    if (enemies[j].health <= 0) {
+                        // Create explosion effect
+                        createExplosion(enemies[j].x + enemies[j].width/2, enemies[j].y + enemies[j].height/2);
+                        
+                        enemies.splice(j, 1);
+                        score += 20;
+                        updateHUD();
+                    }
                 }
             }
             
             // Check collision with boss
             if (bossActive && checkCollision(ability, boss)) {
                 boss.health -= ability.damage;
-                sounds.hit.play();
                 
                 if (boss.health <= 0) {
+                    // Big explosion for boss
+                    for (let k = 0; k < 100; k++) {
+                        particles.push({
+                            x: boss.x + boss.width/2,
+                            y: boss.y + boss.height/2,
+                            size: Math.random() * 8 + 4,
+                            color: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.8)`,
+                            speedX: (Math.random() - 0.5) * 10,
+                            speedY: (Math.random() - 0.5) * 10,
+                            life: 60 + Math.random() * 60
+                        });
+                    }
+                    
                     bossActive = false;
                     score += 100 * level;
                     updateHUD();
-                    sounds.levelUp.play();
                 }
             }
         }
@@ -613,25 +737,72 @@ function update() {
     
     // Update boss
     if (bossActive) {
-        boss.x += boss.speed * boss.direction;
+        boss.x += boss.speed * boss.direction * deltaFactor;
         
         // Change direction at edges
         if (boss.x + boss.width > canvas.width || boss.x < 0) {
             boss.direction *= -1;
         }
         
+        // Boss phase changes
+        if (Date.now() - boss.lastPhaseChange > 10000) { // Every 10 seconds
+            boss.lastPhaseChange = Date.now();
+            boss.phase++;
+            boss.speed += 0.5;
+            
+            // Create phase change effect
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: boss.x + boss.width/2,
+                    y: boss.y + boss.height/2,
+                    size: Math.random() * 6 + 3,
+                    color: `rgba(255, 0, 0, ${Math.random() * 0.7 + 0.3})`,
+                    speedX: (Math.random() - 0.5) * 8,
+                    speedY: (Math.random() - 0.5) * 8,
+                    life: 40 + Math.random() * 40
+                });
+            }
+        }
+        
         // Boss attacks
         if (Date.now() > boss.attackCooldown) {
-            boss.attackCooldown = Date.now() + 2000;
-            enemies.push({
-                x: boss.x + boss.width/2 - 20,
-                y: boss.y + boss.height,
-                width: 40,
-                height: 40,
-                speed: 2,
-                frozen: false,
-                frozenTime: 0
-            });
+            boss.attackCooldown = Date.now() + 2000 / boss.phase;
+            
+            // More enemies in higher phases
+            const attackCount = 1 + Math.floor(boss.phase / 2);
+            for (let i = 0; i < attackCount; i++) {
+                enemies.push({
+                    x: boss.x + boss.width/2 - 20 + (i * 40 - (attackCount-1)*20),
+                    y: boss.y + boss.height,
+                    width: 40,
+                    height: 40,
+                    speed: 2 * boss.phase,
+                    frozen: false,
+                    frozenTime: 0,
+                    health: 1
+                });
+            }
+        }
+    }
+    
+    // Update explosions
+    for (let i = explosions.length - 1; i >= 0; i--) {
+        explosions[i].radius += explosions[i].growthRate * deltaFactor;
+        explosions[i].alpha -= 0.02 * deltaFactor;
+        
+        if (explosions[i].alpha <= 0) {
+            explosions.splice(i, 1);
+        }
+    }
+    
+    // Update particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].x += particles[i].speedX * deltaFactor;
+        particles[i].y += particles[i].speedY * deltaFactor;
+        particles[i].life--;
+        
+        if (particles[i].life <= 0) {
+            particles.splice(i, 1);
         }
     }
     
@@ -639,8 +810,30 @@ function update() {
     if (gems.length === 0 && !bossActive) {
         level++;
         updateHUD();
-        sounds.levelUp.play();
         generateObjects();
+    }
+}
+
+function createExplosion(x, y, particleCount = 20) {
+    // Create explosion effect
+    explosions.push({
+        x, y,
+        radius: 5,
+        growthRate: 2,
+        alpha: 1,
+        color: `rgba(255, 150, 50, 1)`
+    });
+    
+    // Create particles
+    for (let i = 0; i < particleCount; i++) {
+        particles.push({
+            x, y,
+            size: Math.random() * 6 + 2,
+            color: `rgba(255, ${Math.floor(100 + Math.random() * 155)}, 0, ${Math.random() * 0.7 + 0.3})`,
+            speedX: (Math.random() - 0.5) * 8,
+            speedY: (Math.random() - 0.5) * 8,
+            life: 30 + Math.random() * 30
+        });
     }
 }
 
@@ -662,89 +855,57 @@ function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     // Draw background
-    if (assets.bgImage.complete) {
-        ctx.drawImage(assets.bgImage, 0, 0, canvas.width, canvas.height);
-    } else {
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
+    ctx.drawImage(assets.bgImage, 0, 0, canvas.width, canvas.height);
     
     if (gameActive) {
-        // Draw gems
+        // Draw gems with rotation
         gems.forEach(gem => {
-            if (assets.coinImage.complete) {
-                ctx.drawImage(assets.coinImage, gem.x, gem.y, gem.width, gem.height);
-            } else {
-                ctx.fillStyle = '#ffcc00';
-                ctx.beginPath();
-                ctx.arc(
-                    gem.x + gem.width/2,
-                    gem.y + gem.height/2,
-                    gem.width/2,
-                    0,
-                    Math.PI * 2
-                );
-                ctx.fill();
-            }
+            ctx.save();
+            ctx.translate(gem.x + gem.width/2, gem.y + gem.height/2);
+            ctx.rotate(gem.rotation);
+            ctx.drawImage(assets.coinImage, -gem.width/2, -gem.height/2, gem.width, gem.height);
+            ctx.restore();
         });
         
-        // Draw powerups
+        // Draw powerups with rotation
         powerups.forEach(powerup => {
-            if (assets.powerupImage.complete) {
-                ctx.drawImage(assets.powerupImage, powerup.x, powerup.y, powerup.width, powerup.height);
-            } else {
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.moveTo(powerup.x + powerup.width/2, powerup.y);
-                ctx.lineTo(powerup.x + powerup.width, powerup.y + powerup.height/3);
-                ctx.lineTo(powerup.x + powerup.width*0.8, powerup.y + powerup.height);
-                ctx.lineTo(powerup.x + powerup.width*0.2, powerup.y + powerup.height);
-                ctx.lineTo(powerup.x, powerup.y + powerup.height/3);
-                ctx.closePath();
-                ctx.fill();
-            }
+            ctx.save();
+            ctx.translate(powerup.x + powerup.width/2, powerup.y + powerup.height/2);
+            ctx.rotate(powerup.rotation);
+            ctx.drawImage(assets.powerupImage, -powerup.width/2, -powerup.height/2, powerup.width, powerup.height);
             
             // Draw icon for extra life
             if (powerup.type === "extra_life") {
                 ctx.fillStyle = "red";
                 ctx.font = "bold 20px Arial";
-                ctx.fillText("+1", powerup.x + 5, powerup.y + 20);
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("+1", 0, 0);
             }
+            ctx.restore();
         });
         
         // Draw enemies
         enemies.forEach(enemy => {
-            if (assets.monsterImage.complete) {
-                if (enemy.frozen) {
-                    // Draw frozen effect
-                    ctx.save();
-                    ctx.globalAlpha = 0.7;
-                    ctx.drawImage(assets.monsterImage, enemy.x, enemy.y, enemy.width, enemy.height);
-                    ctx.restore();
-                    
-                    // Ice overlay
-                    ctx.fillStyle = "rgba(100, 100, 255, 0.3)";
-                    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-                } else {
-                    ctx.drawImage(assets.monsterImage, enemy.x, enemy.y, enemy.width, enemy.height);
-                }
+            if (enemy.frozen) {
+                // Draw frozen effect
+                ctx.save();
+                ctx.globalAlpha = 0.7;
+                ctx.drawImage(assets.monsterImage, enemy.x, enemy.y, enemy.width, enemy.height);
+                ctx.restore();
+                
+                // Ice overlay
+                ctx.fillStyle = "rgba(100, 100, 255, 0.3)";
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
             } else {
-                ctx.fillStyle = enemy.frozen ? "#6666ff" : "#ff0000";
-                ctx.beginPath();
-                ctx.arc(
-                    enemy.x + enemy.width/2,
-                    enemy.y + enemy.height/2,
-                    enemy.width/2,
-                    0,
-                    Math.PI * 2
-                );
-                ctx.fill();
+                ctx.drawImage(assets.monsterImage, enemy.x, enemy.y, enemy.width, enemy.height);
             }
         });
         
         // Draw abilities
         abilities.forEach(ability => {
             if (ability.type === "fireball") {
+                // Fireball core
                 ctx.fillStyle = "#ff9933";
                 ctx.beginPath();
                 ctx.arc(
@@ -756,7 +917,7 @@ function render() {
                 );
                 ctx.fill();
                 
-                // Fire effect
+                // Fireball inner glow
                 ctx.fillStyle = "#ff3333";
                 ctx.beginPath();
                 ctx.arc(
@@ -767,50 +928,130 @@ function render() {
                     Math.PI * 2
                 );
                 ctx.fill();
-            } else if (ability.type === "lightning") {
+                
+                // Fireball outer glow
+                const gradient = ctx.createRadialGradient(
+                    ability.x + ability.width/2,
+                    ability.y + ability.height/2,
+                    ability.width/3,
+                    ability.x + ability.width/2,
+                    ability.y + ability.height/2,
+                    ability.width/2 + 5
+                );
+                gradient.addColorStop(0, "rgba(255, 100, 0, 0.8)");
+                gradient.addColorStop(1, "rgba(255, 100, 0, 0)");
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(
+                    ability.x + ability.width/2,
+                    ability.y + ability.height/2,
+                    ability.width/2 + 5,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+                
+                // Fire trail particles
+                if (Math.random() < 0.3) {
+                    particles.push({
+                        x: ability.x + ability.width/2,
+                        y: ability.y + ability.height,
+                        size: Math.random() * 3 + 1,
+                        color: `rgba(255, ${Math.floor(100 + Math.random() * 100)}, 0, ${Math.random() * 0.5 + 0.5})`,
+                        speedX: (Math.random() - 0.5) * 2,
+                        speedY: -Math.random() * 2,
+                        life: 20 + Math.random() * 20
+                    });
+                }
+            } 
+            else if (ability.type === "lightning") {
+                // Lightning bolt
                 ctx.strokeStyle = "#aa33ff";
                 ctx.lineWidth = 3;
                 ctx.beginPath();
                 ctx.moveTo(ability.x + ability.width/2, ability.y);
                 ctx.lineTo(ability.x + ability.width/2, ability.y + ability.height);
                 ctx.stroke();
+                
+                // Lightning glow
+                ctx.strokeStyle = "rgba(200, 150, 255, 0.5)";
+                ctx.lineWidth = 8;
+                ctx.beginPath();
+                ctx.moveTo(ability.x + ability.width/2, ability.y);
+                ctx.lineTo(ability.x + ability.width/2, ability.y + ability.height);
+                ctx.stroke();
+                
+                // Lightning particles
+                if (Math.random() < 0.5) {
+                    particles.push({
+                        x: ability.x + ability.width/2 + (Math.random() - 0.5) * 10,
+                        y: ability.y + Math.random() * ability.height,
+                        size: Math.random() * 2 + 1,
+                        color: `rgba(200, 150, 255, ${Math.random() * 0.5 + 0.5})`,
+                        speedX: (Math.random() - 0.5) * 3,
+                        speedY: (Math.random() - 0.5) * 3,
+                        life: 10 + Math.random() * 10
+                    });
+                }
             }
         });
         
         // Draw boss
         if (bossActive) {
-            if (assets.monsterImage.complete) {
-                ctx.drawImage(assets.monsterImage, boss.x, boss.y, boss.width, boss.height);
-            } else {
-                ctx.fillStyle = "#ff0000";
-                ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
-            }
+            // Draw boss image
+            ctx.drawImage(assets.bossImage, boss.x, boss.y, boss.width, boss.height);
             
             // Boss health bar background
-            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-            ctx.fillRect(boss.x + 10, boss.y - 20, boss.width - 20, 10);
+            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            ctx.fillRect(boss.x + 10, boss.y - 25, boss.width - 20, 15);
             
             // Boss health bar
             const healthWidth = (boss.width - 20) * (boss.health / boss.maxHealth);
-            ctx.fillStyle = "#00ff00";
-            ctx.fillRect(boss.x + 10, boss.y - 20, healthWidth, 10);
+            const healthColor = healthWidth > (boss.width - 20) * 0.5 ? "#00ff00" : 
+                              healthWidth > (boss.width - 20) * 0.25 ? "#ffff00" : "#ff0000";
+            
+            ctx.fillStyle = healthColor;
+            ctx.fillRect(boss.x + 10, boss.y - 25, healthWidth, 15);
+            
+            // Boss health text
+            ctx.fillStyle = "white";
+            ctx.font = "bold 12px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(
+                `BOSS: ${Math.ceil(boss.health)}/${boss.maxHealth}`, 
+                boss.x + boss.width/2, 
+                boss.y - 12
+            );
+            
+            // Phase indicator
+            ctx.fillStyle = "rgba(255, 0, 0, 0.7)";
+            ctx.font = "bold 14px Arial";
+            ctx.fillText(
+                `PHASE ${boss.phase}`, 
+                boss.x + boss.width/2, 
+                boss.y - 40
+            );
         }
         
-        // Draw dragon
-        if (assets.dragonImage.complete) {
-            ctx.drawImage(assets.dragonImage, dragon.x, dragon.y, dragon.width, dragon.height);
-        } else {
-            ctx.fillStyle = DRAGON_TYPES[currentDragon].color;
+        // Draw explosions
+        explosions.forEach(explosion => {
+            ctx.fillStyle = explosion.color.replace(/[\d\.]+\)$/, explosion.alpha + ")");
             ctx.beginPath();
-            ctx.arc(
-                dragon.x + dragon.width/2,
-                dragon.y + dragon.height/2,
-                dragon.width/2,
-                0,
-                Math.PI * 2
-            );
+            ctx.arc(explosion.x, explosion.y, explosion.radius, 0, Math.PI * 2);
             ctx.fill();
-        }
+        });
+        
+        // Draw particles
+        particles.forEach(particle => {
+            ctx.fillStyle = particle.color;
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        // Draw dragon
+        ctx.drawImage(assets.dragonImage, dragon.x, dragon.y, dragon.width, dragon.height);
         
         // Flash effect when invincible
         if (powerupsActive.invincible && Math.floor(Date.now() / 100) % 2 === 0) {
@@ -826,8 +1067,29 @@ function render() {
             );
             ctx.stroke();
         }
+        
+        // Draw powerup indicators
+        if (powerupsActive.speed_boost || powerupsActive.invincible || powerupsActive.magnet) {
+            const remainingTime = Math.max(0, (powerupEndTime - Date.now()) / 1000).toFixed(1);
+            let powerupText = "";
+            
+            if (powerupsActive.speed_boost) powerupText += "SPEED ";
+            if (powerupsActive.invincible) powerupText += "INVINCIBLE ";
+            if (powerupsActive.magnet) powerupText += "MAGNET ";
+            
+            powerupText += `(${remainingTime}s)`;
+            
+            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            ctx.font = "bold 16px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(
+                powerupText,
+                canvas.width / 2,
+                30
+            );
+        }
     }
 }
 
-// Start the game when all assets are loaded
+// Start the game when everything is loaded
 window.addEventListener('load', init);
