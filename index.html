@@ -3,16 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Dragon Adventure</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Dragon Adventure</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    <div id="gameOverlay">
-        <button id="startBtn">Start Game</button>
-        <button id="quitBtn">Quit</button>
-        <button id="restartBtn">Restart</button>
-        <button id="dragonSelectBtn">Select Dragon</button>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div id="hud">
+            <div>Score: <span id="scoreDisplay">0</span></div>
+            <div>Level: <span id="levelDisplay">1</span></div>
+            <div>Lives: <span id="livesDisplay">3</span></div>
+            <div>Dragon: <span id="dragonDisplay">Fire</span></div>
+        </div>
+        
+        <div id="abilityIndicator">
+            <div id="abilityBar"></div>
+        </div>
+        <div id="abilityText">Ability Ready (Press Space)</div>
+        
+        <div id="menuScreen">
+            <h1>Dragon Adventure</h1>
+            <button class="button" id="startButton">Start Game</button>
+            <button class="button" id="dragonSelectButton">Select Dragon</button>
+            <button class="button" id="quitButton">Quit</button>
+        </div>
+        
+        <div id="gameOverScreen">
+            <h1>Game Over</h1>
+            <h2>Final Score: <span id="finalScore">0</span></h2>
+            <h2>Level Reached: <span id="finalLevel">1</span></h2>
+            <button class="button" id="restartButton">Restart</button>
+            <button class="button" id="quitButton2">Quit</button>
+        </div>
+        
+        <div class="mobile-controls" id="mobileControls">
+            <div class="mobile-btn" id="upBtn">↑</div>
+            <div class="mobile-btn" id="downBtn">↓</div>
+            <div class="mobile-btn" id="leftBtn">←</div>
+            <div class="mobile-btn" id="rightBtn">→</div>
+            <div class="mobile-btn" id="abilityBtn">A</div>
+        </div>
     </div>
 
     <script src="game.js"></script>
