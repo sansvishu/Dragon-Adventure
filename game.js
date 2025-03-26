@@ -26,9 +26,9 @@ const DRAGON_TYPES = {
     }
 };
 
-// Sound Effects from Mixkit
+// Sound Effects
 const sounds = {
-    bgMusic: new Audio("https://assets.mixkit.co/music/preview/mixkit-game-show-suspense-waiting-668.mp3"),
+    bgMusic: new Audio("https://raw.githubusercontent.com/JohnDoe/MyGame/main/assets/sounds/background-music.mp3"),
     coinSound: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-coin-win-notification-269.mp3"),
     loseSound: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-losing-bleeps-2026.mp3"),
     hitSound: new Audio("https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-2759.mp3"),
