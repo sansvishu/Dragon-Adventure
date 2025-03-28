@@ -2,86 +2,96 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dragon Adventure</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
         
         <div id="hud">
-            <div class="hud-item">Score: <span id="scoreDisplay">0</span></div>
-            <div class="hud-item">Level: <span id="levelDisplay">1</span></div>
-            <div class="hud-item">Lives: <span id="livesDisplay">3</span></div>
-            <div class="hud-item">Dragon: <span id="dragonDisplay">Fire</span></div>
+            <div>Score: <span id="scoreDisplay">0</span></div>
+            <div>Level: <span id="levelDisplay">1</span></div>
+            <div>Lives: <span id="livesDisplay">3</span></div>
+            <div>Dragon: <span id="dragonDisplay">Fire</span></div>
         </div>
         
-        <div id="abilityContainer">
-            <div id="abilityText">Ability Ready (Press Space)</div>
-            <div id="abilityIndicator">
-                <div id="abilityBar"></div>
-            </div>
+        <div id="abilityIndicator">
+            <div id="abilityBar"></div>
         </div>
+        <div id="abilityText">Ability Ready (Press Space)</div>
         
         <div id="menuScreen" class="screen">
-            <h1>DRAGON ADVENTURE</h1>
-            <div class="menu-buttons">
-                <button class="button" id="startButton">START GAME</button>
-                <button class="button" id="dragonSelectButton">SELECT DRAGON</button>
-                <button class="button" id="musicToggle">MUSIC: ON</button>
-                <button class="button" id="soundToggle">SOUND: ON</button>
-                <button class="button" id="controlsButton">CONTROLS</button>
+            <h1>Dragon Adventure</h1>
+            <button class="button" id="startButton">Start Game</button>
+            <button class="button" id="dragonSelectButton">Select Dragon</button>
+            <button class="button" id="instructionsButton">How to Play</button>
+        </div>
+        
+        <div id="dragonSelectScreen" class="screen">
+            <h1>Choose Your Dragon</h1>
+            <div class="dragon-options">
+                <button class="dragon-option" data-dragon="fire">
+                    <div class="dragon-icon fire">🔥</div>
+                    <span>Fire Dragon</span>
+                </button>
+                <button class="dragon-option" data-dragon="ice">
+                    <div class="dragon-icon ice">❄️</div>
+                    <span>Ice Dragon</span>
+                </button>
+                <button class="dragon-option" data-dragon="storm">
+                    <div class="dragon-icon storm">⚡</div>
+                    <span>Storm Dragon</span>
+                </button>
             </div>
-            <div id="controlsInfo" class="controls-info">
-                <h3>CONTROLS</h3>
-                <p>Arrow Keys: Move Dragon</p>
-                <p>Space: Use Ability</p>
-                <p>M: Toggle Music</p>
-                <p>S: Toggle Sound</p>
+            <button class="button back-button" id="backToMenuButton">Back</button>
+        </div>
+        
+        <div id="instructionsScreen" class="screen">
+            <h1>How to Play</h1>
+            <div class="instructions-content">
+                <h2>Controls:</h2>
+                <p>Arrow Keys or WASD to move</p>
+                <p>Space to use dragon ability</p>
+                <p>Collect treasures to score points</p>
+                <p>Avoid enemies or defeat them</p>
+                <h2>Dragon Abilities:</h2>
+                <p><span class="fire-icon">🔥</span> Fire - Shoots fireballs</p>
+                <p><span class="ice-icon">❄️</span> Ice - Freezes enemies</p>
+                <p><span class="storm-icon">⚡</span> Storm - Lightning strikes</p>
             </div>
+            <button class="button back-button" id="backToMenuButton2">Back</button>
         </div>
         
         <div id="gameOverScreen" class="screen">
-            <h1>GAME OVER</h1>
-            <div class="score-display">
-                <h2>FINAL SCORE: <span id="finalScore">0</span></h2>
-                <h2>LEVEL REACHED: <span id="finalLevel">1</span></h2>
+            <h1>Game Over</h1>
+            <div class="game-over-stats">
+                <h2>Final Score: <span id="finalScore">0</span></h2>
+                <h2>Level Reached: <span id="finalLevel">1</span></h2>
             </div>
-            <div class="menu-buttons">
-                <button class="button" id="restartButton">PLAY AGAIN</button>
-                <button class="button" id="quitButton2">QUIT</button>
-            </div>
+            <button class="button" id="restartButton">Restart</button>
+            <button class="button" id="quitButton">Menu</button>
+        </div>
+        
+        <div id="pauseScreen" class="screen">
+            <h1>Game Paused</h1>
+            <button class="button" id="resumeButton">Resume</button>
+            <button class="button" id="quitButton2">Menu</button>
         </div>
         
         <div class="mobile-controls" id="mobileControls">
-            <div class="mobile-btn" id="upBtn">↑</div>
-            <div class="mobile-btn" id="downBtn">↓</div>
-            <div class="mobile-btn" id="leftBtn">←</div>
-            <div class="mobile-btn" id="rightBtn">→</div>
-            <div class="mobile-btn ability-btn" id="abilityBtn">A</div>
+            <button class="mobile-btn" id="upBtn">↑</button>
+            <button class="mobile-btn" id="downBtn">↓</button>
+            <button class="mobile-btn" id="leftBtn">←</button>
+            <button class="mobile-btn" id="rightBtn">→</button>
+            <button class="mobile-btn ability-btn" id="abilityBtn">A</button>
         </div>
         
-        <audio id="backgroundMusic" loop>
-            <source src="https://assets.mixkit.co/music/preview/mixkit-game-show-suspense-waiting-668.mp3" type="audio/mpeg">
-        </audio>
-        
-        <audio id="coinSound">
-            <source src="https://assets.mixkit.co/sfx/preview/mixkit-coin-win-notification-919.mp3" type="audio/mpeg">
-        </audio>
-        
-        <audio id="powerupSound">
-            <source src="https://assets.mixkit.co/sfx/preview/mixkit-power-up-electric-zap-2580.mp3" type="audio/mpeg">
-        </audio>
-        
-        <audio id="gameOverSound">
-            <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3" type="audio/mpeg">
-        </audio>
-        
-        <audio id="abilitySound">
-            <source src="https://assets.mixkit.co/sfx/preview/mixkit-magic-spell-hit-2769.mp3" type="audio/mpeg">
-        </audio>
+        <button id="muteButton" class="button mute-button">
+            <span id="muteIcon">🔊</span> <span id="muteText">Sound On</span>
+        </button>
     </div>
 
     <script src="game.js"></script>
