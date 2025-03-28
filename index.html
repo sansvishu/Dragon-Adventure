@@ -3,45 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dragon Adventure</title>
+    <meta name="description" content="Dragon Adventure - An exciting dragon-themed action game">
+    <meta name="keywords" content="dragon, game, adventure, action, HTML5 game">
+    <title>Dragon Adventure | Fly, Fight, and Collect Treasure</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
+        <canvas id="gameCanvas" aria-label="Dragon Adventure game canvas">
+            Your browser does not support HTML5 Canvas. Please update your browser.
+        </canvas>
         
-        <div id="hud">
+        <div id="hud" role="status" aria-live="polite">
             <div>Score: <span id="scoreDisplay">0</span></div>
             <div>Level: <span id="levelDisplay">1</span></div>
             <div>Lives: <span id="livesDisplay">3</span></div>
+            <div>Dragon: <span id="dragonDisplay">Fire</span></div>
         </div>
         
-        <div id="abilityIndicator">
-            <div id="abilityBar"></div>
+        <div id="abilityIndicator" aria-hidden="true">
+            <div id="abilityBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"></div>
         </div>
-        <div id="abilityText">Ability Ready (Tap A)</div>
+        <div id="abilityText" aria-live="polite">Ability Ready (Press Space)</div>
         
-        <div id="menuScreen">
-            <h1>Dragon Adventure</h1>
-            <button class="button" id="startButton">Start Game</button>
-            <button class="button" id="dragonSelectButton">Select Dragon</button>
-        </div>
-        
-        <div id="gameOverScreen">
-            <h1>Game Over</h1>
-            <h2>Final Score: <span id="finalScore">0</span></h2>
-            <button class="button" id="restartButton">Play Again</button>
+        <div id="menuScreen" class="screen" role="dialog" aria-labelledby="menuTitle">
+            <h1 id="menuTitle">Dragon Adventure</h1>
+            <div class="menu-buttons">
+                <button class="button" id="startButton" aria-label="Start Game">Start Game</button>
+                <button class="button" id="dragonSelectButton" aria-label="Select Dragon">Select Dragon</button>
+                <button class="button" id="instructionsButton" aria-label="How to Play">How to Play</button>
+                <button class="button" id="quitButton" aria-label="Quit Game">Quit</button>
+            </div>
         </div>
         
-        <div class="mobile-controls" id="mobileControls">
-            <div class="mobile-btn" id="upBtn">↑</div>
-            <div class="mobile-btn" id="downBtn">↓</div>
-            <div class="mobile-btn" id="leftBtn">←</div>
-            <div class="mobile-btn" id="rightBtn">→</div>
-            <div class="mobile-btn" id="abilityBtn">A</div>
+        <div id="dragonSelectScreen" class="screen" role="dialog" aria-labelledby="dragonSelectTitle">
+            <h1 id="dragonSelectTitle">Choose Your Dragon</h1>
+            <div class="dragon-options">
+                <button class="dragon-option" data-dragon="fire" aria-label="Fire Dragon">
+                    <img src="images/fire-dragon.png" alt="Fire Dragon">
+                    <span>Fire Dragon</span>
+                </button>
+                <button class="dragon-option" data-dragon="ice" aria-label="Ice Dragon">
+                    <img src="images/ice-dragon.png" alt="Ice Dragon">
+                    <span>Ice Dragon</span>
+                </button>
+                <button class="dragon-option" data-dragon="storm" aria-label="Storm Dragon">
+                    <img src="images/storm-dragon.png" alt="Storm Dragon">
+                    <span>Storm Dragon</span>
+                </button>
+            </div>
+            <button class="button back-button" id="backToMenuButton" aria-label="Back to Menu">Back</button>
         </div>
         
-        <button id="muteButton" class="button">Mute</button>
+        <div id="instructionsScreen" class="screen" role="dialog" aria-labelledby="instructionsTitle">
+            <h1 id="instructionsTitle">How to Play</h1>
+            <div class="instructions-content">
+                <h2>Controls:</h2>
+                <p>Arrow Keys or WASD to move</p>
+                <p>Space to use dragon ability</p>
+                <p>Collect treasures to score points</p>
+                <p>Avoid enemies or defeat them</p>
+                <p>Each dragon has a unique special ability</p>
+                <h2>Powerups:</h2>
+                <p><span class="powerup-icon speed">⚡</span> Speed Boost - Move faster</p>
+                <p><span class="powerup-icon invincible">🛡️</span> Invincibility - Temporary protection</p>
+                <p><span class="powerup-icon magnet">🧲</span> Gem Magnet - Attracts gems</p>
+                <p><span class="powerup-icon life">❤️</span> Extra Life - Gain an additional life</p>
+            </div>
+            <button class="button back-button" id="backToMenuButton2" aria-label="Back to Menu">Back</button>
+        </div>
+        
+        <div id="gameOverScreen" class="screen" role="dialog" aria-labelledby="gameOverTitle">
+            <h1 id="gameOverTitle">Game Over</h1>
+            <div class="game-over-stats">
+                <h2>Final Score: <span id="finalScore">0</span></h2>
+                <h2>Level Reached: <span id="finalLevel">1</span></h2>
+                <h2>High Score: <span id="highScore">0</span></h2>
+            </div>
+            <div class="game-over-buttons">
+                <button class="button" id="restartButton" aria-label="Restart Game">Restart</button>
+                <button class="button" id="quitButton2" aria-label="Quit to Menu">Quit</button>
+            </div>
+        </div>
+        
+        <div id="pauseScreen" class="screen" role="dialog" aria-labelledby="pauseTitle">
+            <h1 id="pauseTitle">Game Paused</h1>
+            <button class="button" id="resumeButton" aria-label="Resume Game">Resume</button>
+            <button class="button" id="quitButton3" aria-label="Quit to Menu">Quit</button>
+        </div>
+        
+        <div class="mobile-controls" id="mobileControls" aria-hidden="true">
+            <button class="mobile-btn" id="upBtn" aria-label="Move Up">↑</button>
+            <button class="mobile-btn" id="downBtn" aria-label="Move Down">↓</button>
+            <button class="mobile-btn" id="leftBtn" aria-label="Move Left">←</button>
+            <button class="mobile-btn" id="rightBtn" aria-label="Move Right">→</button>
+            <button class="mobile-btn ability-btn" id="abilityBtn" aria-label="Use Ability">A</button>
+        </div>
+        
+        <button id="muteButton" class="button mute-button" aria-label="Toggle Sound">
+            <span id="muteIcon">🔊</span> <span id="muteText">Sound On</span>
+        </button>
+        
+        <div id="loadingScreen" class="screen">
+            <h1>Loading Dragon Adventure...</h1>
+            <div class="loading-bar">
+                <div id="loadingProgress"></div>
+            </div>
+        </div>
     </div>
 
     <script src="game.js"></script>
