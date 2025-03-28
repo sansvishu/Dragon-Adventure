@@ -1,45 +1,27 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
 body {
     margin: 0;
     padding: 0;
     overflow: hidden;
     background-color: #000;
-    font-family: 'MedievalSharp', cursive;
+    font-family: Arial, sans-serif;
     touch-action: manipulation;
-    user-select: none;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 #gameContainer {
     position: relative;
-    width: 100%;
-    max-width: 800px;
-    height: 100%;
-    max-height: 600px;
-    margin: auto;
+    width: 800px;
+    height: 600px;
+    margin: 0 auto;
     overflow: hidden;
-    border: 4px solid #5a3921;
-    border-radius: 10px;
-    box-shadow: 0 0 30px rgba(139, 69, 19, 0.7);
-    background-color: #111;
 }
 
 #gameCanvas {
-    width: 100%;
-    height: 100%;
+    background-image: url('https://i.postimg.cc/bs0QLhQh/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg');
+    background-size: cover;
     display: block;
-    background-color: #111;
 }
 
-.screen {
+#menuScreen, #gameOverScreen {
     position: absolute;
     top: 0;
     left: 0;
@@ -49,115 +31,68 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(0, 0, 0, 0.7);
     color: white;
-    z-index: 20;
-    text-align: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    padding: 20px;
+    z-index: 10;
 }
 
-.screen.active {
-    opacity: 1;
-    pointer-events: all;
+#gameOverScreen {
+    display: none;
 }
 
 h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: #f8d030;
-    text-shadow: 3px 3px 0 #b8860b, 5px 5px 5px rgba(0, 0, 0, 0.7);
+    font-size: 48px;
+    margin-bottom: 30px;
+    color: #f0f0f0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 h2 {
-    margin: 0.5rem 0;
-    color: #f0f0f0;
-    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .button {
-    min-width: 180px;
-    height: 55px;
+    width: 200px;
+    height: 60px;
     margin: 10px;
-    background: linear-gradient(to bottom, #8b4513, #5a3921);
-    color: #f8d030;
-    border: 3px solid #b8860b;
-    border-radius: 12px;
-    font-size: 1.2rem;
+    background-color: #3333ff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 24px;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
-    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .button:hover {
-    background: linear-gradient(to bottom, #a0522d, #6b4423);
+    background-color: #5555ff;
     transform: scale(1.05);
-}
-
-.button:active {
-    transform: scale(0.98);
-}
-
-.menu-buttons {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 300px;
-}
-
-.back-button {
-    margin-top: 20px;
-    width: 150px;
-}
-
-.mute-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: auto;
-    height: 40px;
-    font-size: 1rem;
-    padding: 0 15px;
-    z-index: 15;
-    display: flex;
-    gap: 5px;
 }
 
 #hud {
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: 10px;
+    left: 10px;
     color: white;
-    font-size: 1rem;
-    z-index: 10;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 8px 15px;
-    border-radius: 12px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px 15px;
-}
-
-#hud div {
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
+    font-size: 24px;
+    z-index: 5;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 10px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 #abilityIndicator {
     position: absolute;
-    bottom: 15px;
-    left: 15px;
+    bottom: 10px;
+    left: 10px;
     width: 200px;
     height: 20px;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     overflow: hidden;
 }
@@ -165,101 +100,22 @@ h2 {
 #abilityBar {
     height: 100%;
     width: 100%;
-    background: linear-gradient(to right, #ff4500, #ff8c00);
+    background-color: #33ff33;
     transform-origin: left;
-    transform: scaleX(1);
+    transform: scaleX(0);
     transition: transform 0.1s;
 }
 
 #abilityText {
     position: absolute;
-    bottom: 40px;
-    left: 15px;
+    bottom: 35px;
+    left: 10px;
     color: white;
-    font-size: 0.9rem;
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 5px 10px;
-    border-radius: 8px;
-}
-
-.dragon-options {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
-    margin: 1rem 0;
-}
-
-.dragon-option {
-    background: rgba(0, 0, 0, 0.5);
-    border: 3px solid #b8860b;
-    border-radius: 12px;
-    padding: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 150px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.dragon-option:hover {
-    transform: scale(1.05);
-}
-
-.dragon-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2.5rem;
-    margin-bottom: 5px;
-}
-
-.dragon-icon.fire {
-    background-color: rgba(255, 50, 50, 0.3);
-    color: #ff3333;
-}
-
-.dragon-icon.ice {
-    background-color: rgba(50, 50, 255, 0.3);
-    color: #3333ff;
-}
-
-.dragon-icon.storm {
-    background-color: rgba(170, 50, 255, 0.3);
-    color: #aa33ff;
-}
-
-.instructions-content {
-    background: rgba(0, 0, 0, 0.7);
-    padding: 15px;
-    border-radius: 12px;
-    border: 3px solid #b8860b;
-    max-width: 700px;
-    margin: 15px;
-    text-align: left;
-    max-height: 60vh;
-    overflow-y: auto;
-}
-
-.instructions-content p {
-    margin: 10px 0;
-    line-height: 1.5;
-}
-
-.fire-icon { color: #ff3333; }
-.ice-icon { color: #3333ff; }
-.storm-icon { color: #aa33ff; }
-
-.game-over-stats {
-    background: rgba(0, 0, 0, 0.7);
-    padding: 15px;
-    border-radius: 12px;
-    border: 3px solid #b8860b;
-    margin: 15px 0;
+    font-size: 16px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+    border-radius: 5px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .mobile-controls {
@@ -267,66 +123,29 @@ h2 {
     bottom: 20px;
     right: 20px;
     display: none;
-    z-index: 10;
-    gap: 10px;
-    grid-template-areas:
-        ". up ."
-        "left down right"
-        ". ability .";
-    grid-template-columns: repeat(3, 1fr);
 }
 
 .mobile-btn {
     width: 60px;
     height: 60px;
-    background-color: rgba(90, 57, 33, 0.7);
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 50%;
+    position: absolute;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #f8d030;
-    font-size: 1.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    border: 2px solid #b8860b;
-    cursor: pointer;
+    color: white;
+    font-size: 24px;
+    user-select: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-.mobile-btn:active {
-    transform: scale(0.95);
-}
-
-#upBtn { grid-area: up; }
-#downBtn { grid-area: down; }
-#leftBtn { grid-area: left; }
-#rightBtn { grid-area: right; }
+#upBtn { bottom: 70px; right: 70px; }
+#downBtn { bottom: 0; right: 70px; }
+#leftBtn { bottom: 35px; right: 140px; }
+#rightBtn { bottom: 35px; right: 0; }
 #abilityBtn { 
-    grid-area: ability;
-    background: linear-gradient(to bottom, #ff4500, #8b4513);
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-@media (max-width: 768px) {
-    #gameContainer {
-        border: none;
-        border-radius: 0;
-        max-height: 100%;
-    }
-
-    .mobile-controls {
-        display: grid;
-    }
-
-    h1 {
-        font-size: 2rem;
-    }
-
-    .button {
-        width: 100%;
-        max-width: 200px;
-    }
+    bottom: 70px; right: 140px; 
+    background-color: rgba(255, 50, 50, 0.7);
 }
