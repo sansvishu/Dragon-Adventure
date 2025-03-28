@@ -1,27 +1,105 @@
+/* Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     margin: 0;
     padding: 0;
     overflow: hidden;
     background-color: #000;
-    font-family: Arial, sans-serif;
+    font-family: 'Press Start 2P', cursive;
     touch-action: manipulation;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Game Container */
 #gameContainer {
     position: relative;
-    width: 800px;
-    height: 600px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: 800px;
+    height: 100vh;
+    max-height: 600px;
     overflow: hidden;
+    background-color: #000;
+    box-shadow: 0 0 20px rgba(0, 0, 255, 0.5);
 }
 
 #gameCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
     background-image: url('https://i.postimg.cc/bs0QLhQh/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg');
     background-size: cover;
-    display: block;
 }
 
-#menuScreen, #gameOverScreen {
+/* HUD */
+#hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 14px;
+    z-index: 5;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 10px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-width: 80%;
+}
+
+.hud-item {
+    white-space: nowrap;
+}
+
+/* Ability Indicator */
+#abilityContainer {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 5;
+}
+
+#abilityIndicator {
+    width: 200px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #333;
+}
+
+#abilityBar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #ff3333, #ff9933);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.1s;
+}
+
+#abilityText {
+    color: white;
+    font-size: 12px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    margin-bottom: 5px;
+    text-align: center;
+    border: 2px solid #333;
+}
+
+/* Screens (Menu & Game Over) */
+.screen {
     position: absolute;
     top: 0;
     left: 0;
@@ -31,9 +109,11 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.8);
     color: white;
     z-index: 10;
+    padding: 20px;
+    text-align: center;
 }
 
 #gameOverScreen {
@@ -41,88 +121,117 @@ body {
 }
 
 h1 {
-    font-size: 48px;
+    font-size: 2.5rem;
     margin-bottom: 30px;
     color: #f0f0f0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    text-shadow: 0 0 10px #33ff33, 0 0 20px #33ff33;
+    animation: glow 1.5s ease-in-out infinite alternate;
 }
 
 h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
+.score-display {
+    margin: 20px 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+    border: 3px solid #ff3333;
+}
+
+/* Buttons */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 300px;
+}
+
 .button {
-    width: 200px;
+    width: 100%;
     height: 60px;
-    margin: 10px;
     background-color: #3333ff;
     color: white;
     border: none;
     border-radius: 10px;
-    font-size: 24px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 16px;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
     justify-content: center;
     align-items: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    padding: 0 20px;
+    text-align: center;
 }
 
 .button:hover {
     background-color: #5555ff;
     transform: scale(1.05);
+    box-shadow: 0 0 15px #5555ff;
 }
 
-#hud {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    color: white;
-    font-size: 24px;
-    z-index: 5;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 10px;
+#musicToggle {
+    background-color: #33cc33;
+}
+
+#musicToggle:hover {
+    background-color: #55ee55;
+    box-shadow: 0 0 15px #55ee55;
+}
+
+#soundToggle {
+    background-color: #ff9933;
+}
+
+#soundToggle:hover {
+    background-color: #ffbb55;
+    box-shadow: 0 0 15px #ffbb55;
+}
+
+#controlsButton {
+    background-color: #aa33ff;
+}
+
+#controlsButton:hover {
+    background-color: #cc55ff;
+    box-shadow: 0 0 15px #cc55ff;
+}
+
+/* Controls Info */
+.controls-info {
+    display: none;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
     border-radius: 10px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    margin-top: 20px;
+    border: 2px solid #aa33ff;
+    max-width: 300px;
 }
 
-#abilityIndicator {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    width: 200px;
-    height: 20px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 10px;
-    overflow: hidden;
+.controls-info h3 {
+    margin-bottom: 10px;
+    color: #aa33ff;
 }
 
-#abilityBar {
-    height: 100%;
-    width: 100%;
-    background-color: #33ff33;
-    transform-origin: left;
-    transform: scaleX(0);
-    transition: transform 0.1s;
+.controls-info p {
+    margin: 8px 0;
+    font-size: 12px;
 }
 
-#abilityText {
-    position: absolute;
-    bottom: 35px;
-    left: 10px;
-    color: white;
-    font-size: 16px;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 5px;
-    border-radius: 5px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-}
-
+/* Mobile Controls */
 .mobile-controls {
     position: absolute;
     bottom: 20px;
     right: 20px;
     display: none;
+    z-index: 5;
 }
 
 .mobile-btn {
@@ -139,6 +248,12 @@ h2 {
     user-select: none;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    border: 2px solid #333;
+}
+
+.mobile-btn:active {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(0.95);
 }
 
 #upBtn { bottom: 70px; right: 70px; }
@@ -148,4 +263,74 @@ h2 {
 #abilityBtn { 
     bottom: 70px; right: 140px; 
     background-color: rgba(255, 50, 50, 0.7);
+    font-size: 20px;
+}
+
+/* Animations */
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px #33ff33, 0 0 20px #33ff33;
+    }
+    to {
+        text-shadow: 0 0 15px #33ff33, 0 0 30px #33ff33, 0 0 40px #33ff33;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+    
+    h2 {
+        font-size: 1.2rem;
+    }
+    
+    .button {
+        height: 50px;
+        font-size: 14px;
+    }
+    
+    #hud {
+        font-size: 12px;
+        padding: 8px;
+    }
+    
+    .mobile-controls {
+        display: block;
+    }
+    
+    #abilityContainer {
+        bottom: 100px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    h2 {
+        font-size: 1rem;
+    }
+    
+    .button {
+        height: 45px;
+        font-size: 12px;
+    }
+    
+    .mobile-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    #upBtn { bottom: 60px; right: 60px; }
+    #downBtn { bottom: 0; right: 60px; }
+    #leftBtn { bottom: 30px; right: 120px; }
+    #rightBtn { bottom: 30px; right: 0; }
+    #abilityBtn { 
+        bottom: 60px; right: 120px;
+    }
 }
