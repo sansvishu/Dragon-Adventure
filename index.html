@@ -2,69 +2,98 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal PDF Converter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dragon Adventure</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Universal PDF Converter</h1>
-            <p>Convert any document to PDF or PDF to other formats</p>
-        </header>
-
-        <div class="converter-container">
-            <div class="converter-option">
-                <h2>Convert to PDF</h2>
-                <div class="file-drop-area" id="toPdfArea">
-                    <span class="file-msg">Drag & drop files here or click to browse</span>
-                    <input class="file-input" type="file" id="toPdfInput" accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.odt,.jpg,.jpeg,.png,.gif" multiple>
-                </div>
-                <div class="format-options">
-                    <label><input type="checkbox" name="toPdfFormat" value="merge" checked> Merge files into single PDF</label>
-                </div>
-                <button id="convertToPdfBtn" class="convert-btn">Convert to PDF</button>
-            </div>
-
-            <div class="converter-option">
-                <h2>Convert from PDF</h2>
-                <div class="file-drop-area" id="fromPdfArea">
-                    <span class="file-msg">Drag & drop PDF files here or click to browse</span>
-                    <input class="file-input" type="file" id="fromPdfInput" accept=".pdf" multiple>
-                </div>
-                <div class="format-options">
-                    <select id="outputFormat">
-                        <option value="docx">Word Document (.docx)</option>
-                        <option value="xlsx">Excel Spreadsheet (.xlsx)</option>
-                        <option value="pptx">PowerPoint (.pptx)</option>
-                        <option value="txt">Plain Text (.txt)</option>
-                        <option value="jpg">JPEG Image (.jpg)</option>
-                        <option value="png">PNG Image (.png)</option>
-                    </select>
-                </div>
-                <button id="convertFromPdfBtn" class="convert-btn">Convert from PDF</button>
-            </div>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="hud">
+            <div>Score: <span id="scoreDisplay">0</span></div>
+            <div>Level: <span id="levelDisplay">1</span></div>
+            <div>Lives: <span id="livesDisplay">3</span></div>
+            <div>Dragon: <span id="dragonDisplay">Fire</span></div>
         </div>
-
-        <div class="progress-container hidden" id="progressContainer">
-            <h3>Conversion Progress</h3>
-            <div class="progress-bar">
-                <div class="progress" id="progressBar"></div>
+        
+        <div id="abilityIndicator">
+            <div id="abilityBar"></div>
+        </div>
+        <div id="abilityText">Ability Ready (Press Space)</div>
+        
+        <div id="menuScreen" class="screen">
+            <h1>Dragon Adventure</h1>
+            <button class="button" id="startButton">Start Game</button>
+            <button class="button" id="dragonSelectButton">Select Dragon</button>
+            <button class="button" id="instructionsButton">How to Play</button>
+        </div>
+        
+        <div id="dragonSelectScreen" class="screen">
+            <h1>Choose Your Dragon</h1>
+            <div class="dragon-options">
+                <button class="dragon-option" data-dragon="fire">
+                    <div class="dragon-icon fire"></div>
+                    <span>Fire Dragon</span>
+                </button>
+                <button class="dragon-option" data-dragon="ice">
+                    <div class="dragon-icon ice"></div>
+                    <span>Ice Dragon</span>
+                </button>
+                <button class="dragon-option" data-dragon="storm">
+                    <div class="dragon-icon storm"></div>
+                    <span>Storm Dragon</span>
+                </button>
             </div>
-            <p id="progressText">Preparing files...</p>
-            <div id="fileList"></div>
+            <button class="button back-button" id="backToMenuButton">Back</button>
         </div>
-
-        <div class="download-container hidden" id="downloadContainer">
-            <h3>Your files are ready!</h3>
-            <div id="downloadLinks"></div>
-            <button id="downloadAllBtn" class="download-all-btn">Download All</button>
+        
+        <div id="instructionsScreen" class="screen">
+            <h1>How to Play</h1>
+            <div class="instructions-content">
+                <h2>Controls:</h2>
+                <p>Arrow Keys or WASD to move</p>
+                <p>Space to use dragon ability</p>
+                <p>Collect treasures to score points</p>
+                <p>Avoid enemies or defeat them</p>
+                <h2>Dragon Abilities:</h2>
+                <p><span class="fire-icon">🔥</span> Fire - Shoots fireballs</p>
+                <p><span class="ice-icon">❄️</span> Ice - Freezes enemies</p>
+                <p><span class="storm-icon">⚡</span> Storm - Lightning strikes</p>
+            </div>
+            <button class="button back-button" id="backToMenuButton2">Back</button>
         </div>
+        
+        <div id="gameOverScreen" class="screen">
+            <h1>Game Over</h1>
+            <div class="game-over-stats">
+                <h2>Final Score: <span id="finalScore">0</span></h2>
+                <h2>Level Reached: <span id="finalLevel">1</span></h2>
+            </div>
+            <button class="button" id="restartButton">Restart</button>
+            <button class="button" id="quitButton">Menu</button>
+        </div>
+        
+        <div id="pauseScreen" class="screen">
+            <h1>Game Paused</h1>
+            <button class="button" id="resumeButton">Resume</button>
+            <button class="button" id="quitButton2">Menu</button>
+        </div>
+        
+        <div class="mobile-controls" id="mobileControls">
+            <button class="mobile-btn" id="upBtn">↑</button>
+            <button class="mobile-btn" id="downBtn">↓</button>
+            <button class="mobile-btn" id="leftBtn">←</button>
+            <button class="mobile-btn" id="rightBtn">→</button>
+            <button class="mobile-btn ability-btn" id="abilityBtn">A</button>
+        </div>
+        
+        <button id="muteButton" class="button mute-button">
+            <span id="muteIcon">🔊</span> <span id="muteText">Sound On</span>
+        </button>
     </div>
 
-    <footer>
-        <p>Note: This is a frontend demo. In a real application, file conversion would require server-side processing or API integration.</p>
-    </footer>
+    <script src="game.js"></script>
 </body>
 </html>
