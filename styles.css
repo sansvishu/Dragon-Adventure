@@ -3,216 +3,102 @@ body {
     padding: 0;
     overflow: hidden;
     background-color: #000;
-    font-family: 'Arial', sans-serif;
-    touch-action: manipulation;
+    font-family: Arial, sans-serif;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
     user-select: none;
 }
 
 #gameContainer {
-    position: relative;
-    width: 800px;
-    height: 600px;
-    margin: 20px auto;
-    overflow: hidden;
-    border: 4px solid #444;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-}
-
-#gameCanvas {
-    background-color: #111;
-    display: block;
-    background-image: url('https://i.postimg.cc/bs0QLhQh/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg');
-    background-size: cover;
-}
-
-#menuScreen, #gameOverScreen {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.85);
-    color: white;
-    z-index: 10;
-    text-align: center;
-}
-
-#gameOverScreen {
-    display: none;
-}
-
-h1 {
-    font-size: 48px;
-    margin-bottom: 30px;
-    color: #f0f0f0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    font-family: 'Impact', sans-serif;
-    letter-spacing: 2px;
-    animation: pulse 2s infinite;
-}
-
-h2 {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    margin: 10px 0;
-    font-size: 28px;
-}
-
-.button {
-    width: 220px;
-    height: 65px;
-    margin: 15px;
-    background: linear-gradient(to bottom, #4444ff, #2222aa);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 24px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    font-family: 'Arial', sans-serif;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.button:hover {
-    background: linear-gradient(to bottom, #5555ff, #3333bb);
-    transform: scale(1.05);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-}
-
-.button:active {
-    transform: scale(0.98);
-}
-
-#hud {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    color: white;
-    font-size: 24px;
-    z-index: 5;
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 12px 20px;
-    border-radius: 12px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    font-family: 'Arial', sans-serif;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-#hud div {
-    margin: 5px 0;
-}
-
-#abilityIndicator {
-    position: absolute;
-    bottom: 15px;
-    left: 15px;
-    width: 250px;
-    height: 25px;
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 12px;
     overflow: hidden;
-    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-#abilityBar {
-    height: 100%;
+#gameCanvas {
     width: 100%;
-    background: linear-gradient(to right, #33ff33, #00aa00);
-    transform-origin: left;
-    transform: scaleX(0);
-    transition: transform 0.1s;
+    height: 100%;
+    display: block;
+    background-color: #111;
+    background-image: url('https://i.postimg.cc/bs0QLhQh/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg');
+    background-size: cover;
 }
 
-#abilityText {
-    position: absolute;
-    bottom: 45px;
-    left: 15px;
-    color: white;
-    font-size: 18px;
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 8px 12px;
-    border-radius: 8px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    font-family: 'Arial', sans-serif;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-}
+/* [Rest of your existing CSS remains the same, but add these mobile-specific adjustments] */
 
 .mobile-controls {
-    position: absolute;
+    position: fixed;
     bottom: 20px;
     right: 20px;
-    display: none;
-    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    width: 180px;
+    height: 180px;
+    z-index: 10;
 }
 
 .mobile-btn {
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 50%;
-    position: absolute;
+    margin: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
-    font-size: 28px;
-    user-select: none;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    font-size: 24px;
     touch-action: manipulation;
 }
 
-.mobile-btn:active {
-    transform: scale(0.95);
-    background-color: rgba(50, 50, 50, 0.7);
-}
-
-#upBtn { bottom: 80px; right: 80px; }
-#downBtn { bottom: 0; right: 80px; }
-#leftBtn { bottom: 40px; right: 160px; }
-#rightBtn { bottom: 40px; right: 0; }
+#upBtn { order: 1; margin-left: 60px; }
+#leftBtn { order: 2; }
+#rightBtn { order: 3; }
+#downBtn { order: 4; margin-left: 60px; }
 #abilityBtn { 
-    bottom: 80px; right: 160px; 
+    position: absolute;
+    left: -80px;
+    top: 50%;
+    transform: translateY(-50%);
     background: linear-gradient(to bottom, #ff4444, #aa0000);
 }
 
-#abilityBtn:active {
-    background: linear-gradient(to bottom, #ff5555, #bb0000);
+#muteButton {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    width: 80px;
+    height: 40px;
+    font-size: 16px;
+    z-index: 10;
 }
 
-/* Responsive design */
-@media (max-width: 850px) {
-    #gameContainer {
-        width: 100%;
-        height: 100vh;
-        margin: 0;
-        border: none;
-        border-radius: 0;
-    }
-    
-    #gameCanvas {
-        width: 100%;
-        height: 100%;
-    }
-    
-    .mobile-controls {
-        display: block;
-    }
+/* Adjust HUD for mobile */
+#hud {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 18px;
+    padding: 8px 12px;
 }
 
-/* Animation for menu */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+/* Menu screens adjustments */
+#menuScreen, #gameOverScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    font-size: 90%;
+}
+
+.button {
+    width: 180px;
+    height: 50px;
+    font-size: 20px;
+    margin: 10px;
 }
