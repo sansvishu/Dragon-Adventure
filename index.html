@@ -5,36 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dragon Adventure</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="gameContainer">
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <canvas id="gameCanvas"></canvas>
         
         <div id="hud">
-            <div>Score: <span id="scoreDisplay">0</span></div>
-            <div>Level: <span id="levelDisplay">1</span></div>
-            <div>Lives: <span id="livesDisplay">3</span></div>
-            <div>Dragon: <span id="dragonDisplay">Fire</span></div>
+            <div class="hud-item">Score: <span id="scoreDisplay">0</span></div>
+            <div class="hud-item">Level: <span id="levelDisplay">1</span></div>
+            <div class="hud-item">Lives: <span id="livesDisplay">3</span></div>
+            <div class="hud-item">Dragon: <span id="dragonDisplay">Fire</span></div>
         </div>
         
-        <div id="abilityIndicator">
-            <div id="abilityBar"></div>
-        </div>
-        <div id="abilityText">Ability Ready (Press Space)</div>
-        
-        <div id="menuScreen">
-            <h1>Dragon Adventure</h1>
-            <button class="button" id="startButton">Start Game</button>
-            <button class="button" id="dragonSelectButton">Select Dragon</button>
-            <button class="button" id="quitButton">Quit</button>
+        <div id="abilityContainer">
+            <div id="abilityText">Ability Ready (Press Space)</div>
+            <div id="abilityIndicator">
+                <div id="abilityBar"></div>
+            </div>
         </div>
         
-        <div id="gameOverScreen">
-            <h1>Game Over</h1>
-            <h2>Final Score: <span id="finalScore">0</span></h2>
-            <h2>Level Reached: <span id="finalLevel">1</span></h2>
-            <button class="button" id="restartButton">Restart</button>
-            <button class="button" id="quitButton2">Quit</button>
+        <div id="menuScreen" class="screen">
+            <h1>DRAGON ADVENTURE</h1>
+            <div class="menu-buttons">
+                <button class="button" id="startButton">START GAME</button>
+                <button class="button" id="dragonSelectButton">SELECT DRAGON</button>
+                <button class="button" id="musicToggle">MUSIC: ON</button>
+                <button class="button" id="soundToggle">SOUND: ON</button>
+                <button class="button" id="controlsButton">CONTROLS</button>
+            </div>
+            <div id="controlsInfo" class="controls-info">
+                <h3>CONTROLS</h3>
+                <p>Arrow Keys: Move Dragon</p>
+                <p>Space: Use Ability</p>
+                <p>M: Toggle Music</p>
+                <p>S: Toggle Sound</p>
+            </div>
+        </div>
+        
+        <div id="gameOverScreen" class="screen">
+            <h1>GAME OVER</h1>
+            <div class="score-display">
+                <h2>FINAL SCORE: <span id="finalScore">0</span></h2>
+                <h2>LEVEL REACHED: <span id="finalLevel">1</span></h2>
+            </div>
+            <div class="menu-buttons">
+                <button class="button" id="restartButton">PLAY AGAIN</button>
+                <button class="button" id="quitButton2">QUIT</button>
+            </div>
         </div>
         
         <div class="mobile-controls" id="mobileControls">
@@ -42,8 +60,28 @@
             <div class="mobile-btn" id="downBtn">↓</div>
             <div class="mobile-btn" id="leftBtn">←</div>
             <div class="mobile-btn" id="rightBtn">→</div>
-            <div class="mobile-btn" id="abilityBtn">A</div>
+            <div class="mobile-btn ability-btn" id="abilityBtn">A</div>
         </div>
+        
+        <audio id="backgroundMusic" loop>
+            <source src="https://assets.mixkit.co/music/preview/mixkit-game-show-suspense-waiting-668.mp3" type="audio/mpeg">
+        </audio>
+        
+        <audio id="coinSound">
+            <source src="https://assets.mixkit.co/sfx/preview/mixkit-coin-win-notification-919.mp3" type="audio/mpeg">
+        </audio>
+        
+        <audio id="powerupSound">
+            <source src="https://assets.mixkit.co/sfx/preview/mixkit-power-up-electric-zap-2580.mp3" type="audio/mpeg">
+        </audio>
+        
+        <audio id="gameOverSound">
+            <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3" type="audio/mpeg">
+        </audio>
+        
+        <audio id="abilitySound">
+            <source src="https://assets.mixkit.co/sfx/preview/mixkit-magic-spell-hit-2769.mp3" type="audio/mpeg">
+        </audio>
     </div>
 
     <script src="game.js"></script>
