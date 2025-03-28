@@ -1,22 +1,38 @@
+/* Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     margin: 0;
     padding: 0;
     overflow: hidden;
     background-color: #000;
-    font-family: Arial, sans-serif;
-    touch-action: none;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
+    font-family: 'MedievalSharp', 'Arial', sans-serif;
+    touch-action: manipulation;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Game Container */
 #gameContainer {
-    position: fixed;
-    top: 0;
-    left: 0;
+    position: relative;
     width: 100%;
+    max-width: 800px;
     height: 100%;
+    max-height: 600px;
+    margin: auto;
     overflow: hidden;
+    border: 4px solid #5a3921;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(139, 69, 19, 0.7);
+    background-color: #111;
 }
 
 #gameCanvas {
@@ -24,81 +40,453 @@ body {
     height: 100%;
     display: block;
     background-color: #111;
-    background-image: url('https://i.postimg.cc/bs0QLhQh/Colorful-Abstract-Dancing-Image-Dance-Studio-Logo.jpg');
+    background-image: url('images/background.jpg');
     background-size: cover;
+    background-position: center;
 }
 
-/* [Rest of your existing CSS remains the same, but add these mobile-specific adjustments] */
+/* Screens */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    z-index: 20;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    padding: 20px;
+}
 
-.mobile-controls {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
+.screen.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Typography */
+h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: 1rem;
+    color: #f8d030;
+    text-shadow: 3px 3px 0 #b8860b, 5px 5px 5px rgba(0, 0, 0, 0.7);
+    letter-spacing: 3px;
+    animation: pulse 2s infinite;
+}
+
+h2 {
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.8);
+    margin: 0.5rem 0;
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    color: #f0f0f0;
+}
+
+/* Buttons */
+.button {
+    min-width: 180px;
+    height: 55px;
+    margin: 10px;
+    background: linear-gradient(to bottom, #8b4513, #5a3921);
+    color: #f8d030;
+    border: 3px solid #b8860b;
+    border-radius: 12px;
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    padding: 0 20px;
+    font-family: 'MedievalSharp', cursive;
+}
+
+.button:hover {
+    background: linear-gradient(to bottom, #a0522d, #6b4423);
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+    color: #fffacd;
+}
+
+.button:active {
+    transform: scale(0.98);
+}
+
+.button:focus-visible {
+    outline: 3px solid #f8d030;
+    outline-offset: 2px;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 300px;
+}
+
+.back-button {
+    margin-top: 20px;
+    width: 150px;
+}
+
+.mute-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: auto;
+    height: 40px;
+    font-size: 1rem;
+    padding: 0 15px;
+    z-index: 15;
+    display: flex;
+    gap: 5px;
+}
+
+.mute-button.muted #muteIcon {
+    color: #ccc;
+}
+
+/* HUD Elements */
+#hud {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    color: white;
+    font-size: clamp(0.8rem, 2vw, 1.25rem);
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 8px 15px;
+    border-radius: 12px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    border: 2px solid rgba(139, 69, 19, 0.5);
+    backdrop-filter: blur(3px);
     display: flex;
     flex-wrap: wrap;
-    width: 180px;
-    height: 180px;
+    gap: 5px 15px;
+}
+
+#hud div {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+/* Ability Indicator */
+#abilityIndicator {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    width: clamp(150px, 40vw, 250px);
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid rgba(139, 69, 19, 0.5);
+    backdrop-filter: blur(3px);
+}
+
+#abilityBar {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(to right, #ff4500, #ff8c00);
+    transform-origin: left;
+    transform: scaleX(1);
+    transition: transform 0.1s;
+}
+
+#abilityText {
+    position: absolute;
+    bottom: 40px;
+    left: 15px;
+    color: white;
+    font-size: clamp(0.7rem, 2vw, 1rem);
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 5px 10px;
+    border-radius: 8px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    border: 2px solid rgba(139, 69, 19, 0.5);
+    backdrop-filter: blur(3px);
+    white-space: nowrap;
+}
+
+/* Dragon Selection Screen */
+.dragon-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin: 1rem 0;
+    max-width: 800px;
+}
+
+.dragon-option {
+    background: rgba(0, 0, 0, 0.5);
+    border: 3px solid #b8860b;
+    border-radius: 12px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: clamp(120px, 30vw, 200px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dragon-option:hover {
+    transform: scale(1.05);
+    background: rgba(90, 57, 33, 0.7);
+}
+
+.dragon-option img {
+    width: 100%;
+    height: auto;
+    max-height: 150px;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+
+.dragon-option span {
+    font-size: clamp(0.9rem, 2vw, 1.25rem);
+    color: #f8d030;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Instructions Screen */
+.instructions-content {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    border-radius: 12px;
+    border: 3px solid #b8860b;
+    max-width: 700px;
+    margin: 15px;
+    text-align: left;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.instructions-content h2 {
+    color: #f8d030;
+    margin-bottom: 10px;
+    margin-top: 15px;
+}
+
+.instructions-content p {
+    margin: 10px 0;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    line-height: 1.5;
+}
+
+.powerup-icon {
+    display: inline-block;
+    width: 1.5em;
+    text-align: center;
+}
+
+.powerup-icon.speed { color: #00ff00; }
+.powerup-icon.invincible { color: #ffff00; }
+.powerup-icon.magnet { color: #ff00ff; }
+.powerup-icon.life { color: #ff0000; }
+
+/* Game Over Stats */
+.game-over-stats {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    border-radius: 12px;
+    border: 3px solid #b8860b;
+    margin: 15px 0;
+}
+
+.game-over-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 300px;
+}
+
+/* Loading Screen */
+#loadingScreen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 30;
+}
+
+.loading-bar {
+    width: 80%;
+    max-width: 300px;
+    height: 20px;
+    background-color: rgba(90, 57, 33, 0.5);
+    border-radius: 10px;
+    margin-top: 20px;
+    overflow: hidden;
+    border: 2px solid #b8860b;
+}
+
+#loadingProgress {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(to right, #ff4500, #ff8c00);
+    transition: width 0.3s ease;
+}
+
+/* Mobile Controls */
+.mobile-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: none;
     z-index: 10;
+    gap: 10px;
+    grid-template-areas:
+        ". up ."
+        "left down right"
+        ". ability .";
+    grid-template-columns: repeat(3, 1fr);
 }
 
 .mobile-btn {
     width: 60px;
     height: 60px;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(90, 57, 33, 0.7);
     border-radius: 50%;
-    margin: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
-    font-size: 24px;
+    color: #f8d030;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    border: 2px solid #b8860b;
     touch-action: manipulation;
+    cursor: pointer;
+    user-select: none;
 }
 
-#upBtn { order: 1; margin-left: 60px; }
-#leftBtn { order: 2; }
-#rightBtn { order: 3; }
-#downBtn { order: 4; margin-left: 60px; }
+.mobile-btn:active {
+    transform: scale(0.95);
+    background-color: rgba(139, 69, 19, 0.7);
+}
+
+#upBtn { grid-area: up; }
+#downBtn { grid-area: down; }
+#leftBtn { grid-area: left; }
+#rightBtn { grid-area: right; }
 #abilityBtn { 
-    position: absolute;
-    left: -80px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: linear-gradient(to bottom, #ff4444, #aa0000);
+    grid-area: ability;
+    background: linear-gradient(to bottom, #ff4500, #8b4513);
 }
 
-#muteButton {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    width: 80px;
-    height: 40px;
-    font-size: 16px;
-    z-index: 10;
+#abilityBtn:active {
+    background: linear-gradient(to bottom, #ff6347, #a0522d);
 }
 
-/* Adjust HUD for mobile */
-#hud {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    font-size: 18px;
-    padding: 8px 12px;
+/* Responsive Design */
+@media (max-width: 768px) {
+    #gameContainer {
+        border: none;
+        border-radius: 0;
+        max-height: 100%;
+    }
+
+    .mobile-controls {
+        display: grid;
+    }
+
+    #hud {
+        flex-direction: column;
+        gap: 5px;
+        padding: 8px 12px;
+    }
+
+    .dragon-options {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .button {
+        width: 100%;
+        max-width: 200px;
+    }
 }
 
-/* Menu screens adjustments */
-#menuScreen, #gameOverScreen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    font-size: 90%;
+@media (max-height: 500px) {
+    #hud {
+        top: 5px;
+        left: 5px;
+        padding: 5px 8px;
+        font-size: 0.8rem;
+    }
+
+    #abilityIndicator {
+        bottom: 5px;
+        left: 5px;
+        height: 15px;
+    }
+
+    #abilityText {
+        bottom: 25px;
+        left: 5px;
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+
+    .mobile-controls {
+        bottom: 5px;
+        right: 5px;
+    }
+
+    .mobile-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
 }
 
-.button {
-    width: 180px;
-    height: 50px;
-    font-size: 20px;
-    margin: 10px;
+/* Animations */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Accessibility */
+[aria-hidden="false"] {
+    visibility: visible;
+}
+
+[aria-hidden="true"] {
+    visibility: hidden;
+}
+
+/* Hide scrollbar but allow scrolling */
+.instructions-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.instructions-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+
+.instructions-content::-webkit-scrollbar-thumb {
+    background: #b8860b;
+    border-radius: 5px;
 }
