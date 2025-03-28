@@ -2,39 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dragon Adventure</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="gameContainer">
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <canvas id="gameCanvas"></canvas>
         
         <div id="hud">
             <div>Score: <span id="scoreDisplay">0</span></div>
             <div>Level: <span id="levelDisplay">1</span></div>
             <div>Lives: <span id="livesDisplay">3</span></div>
-            <div>Dragon: <span id="dragonDisplay">Fire</span></div>
         </div>
         
         <div id="abilityIndicator">
             <div id="abilityBar"></div>
         </div>
-        <div id="abilityText">Ability Ready (Press Space)</div>
+        <div id="abilityText">Ability Ready (Tap A)</div>
         
         <div id="menuScreen">
             <h1>Dragon Adventure</h1>
             <button class="button" id="startButton">Start Game</button>
             <button class="button" id="dragonSelectButton">Select Dragon</button>
-            <button class="button" id="quitButton">Quit</button>
         </div>
         
         <div id="gameOverScreen">
             <h1>Game Over</h1>
             <h2>Final Score: <span id="finalScore">0</span></h2>
-            <h2>Level Reached: <span id="finalLevel">1</span></h2>
-            <button class="button" id="restartButton">Restart</button>
-            <button class="button" id="quitButton2">Quit</button>
+            <button class="button" id="restartButton">Play Again</button>
         </div>
         
         <div class="mobile-controls" id="mobileControls">
@@ -45,7 +41,7 @@
             <div class="mobile-btn" id="abilityBtn">A</div>
         </div>
         
-        <button id="muteButton" class="button" style="position: absolute; top: 10px; right: 10px; width: 100px; height: 40px; font-size: 16px;">Mute</button>
+        <button id="muteButton" class="button">Mute</button>
     </div>
 
     <script src="game.js"></script>
